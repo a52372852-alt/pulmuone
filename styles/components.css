@@ -679,16 +679,14 @@
   padding: 16px 8px;
   margin-top: 10px;
   z-index: 1500;
-  opacity: 0;
+  display: none; /* 레이아웃 왜곡 방지 및 기본 비노출 */
   transform: translateY(15px);
-  pointer-events: none;
-  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  transition: transform 0.2s ease;
 }
 
 .mega-dropdown-panel.open {
-  opacity: 1;
+  display: block;
   transform: translateY(0);
-  pointer-events: auto;
 }
 
 .mega-dropdown-panel ul {

@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>급식 카탈로그 - 풀무원 바른급식 파트너</title>
+  <meta name="description" content="풀무원의 엄선된 급식 식자재 카탈로그입니다. 19대 알레르기 성분 제외 필터를 통해 안심하고 식단을 구성해 보세요.">
+  
+  <!-- FontAwesome CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- CSS Stylesheets -->
+  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/components.css">
+  
+  <style>
+    /* 카탈로그 전용 스타일 */
+    .catalog-wrapper {
+      padding-top: 120px;
+      padding-bottom: 80px;
+    }
+
+    .catalog-layout {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 40px;
+      margin-top: 30px;
+    }
+
+    /* 필터 사이드바 */
+    .filter-sidebar {
+      background-color: white;
+      border-radius: var(--radius-lg);
+      padding: 30px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border-light);
+      align-self: start;
+      position: sticky;
+      top: 100px;
+    }
+
+    .filter-group {
+      margin-bottom: 30px;
+    }
+
+    .filter-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .filter-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--secondary-color);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid var(--border-light);
+      padding-bottom: 10px;
+    }
+
+    /* 알레르기 필터 체크박스 리스트 */
+    .allergy-filter-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      max-height: 250px;
+      overflow-y: auto;
+      padding-right: 6px;
+    }
+
+    .allergy-checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--text-muted);
+      cursor: pointer;
+      user-select: none;
+      padding: 6px;
+      border-radius: var(--radius-sm);
+      background-color: var(--bg-main);
+      transition: all var(--transition-fast);
+    }
+
+    .allergy-checkbox-label:hover {
+      background-color: var(--primary-light);
+      color: var(--primary-color);
+    }
+
+    .allergy-checkbox-label input {
+      accent-color: var(--primary-color);
+      cursor: pointer;
+    }
+
+    /* 검색 박스 */
+    .search-box-wrapper {
+      position: relative;
+    }
+
+    .search-input {
+      width: 100%;
+      background-color: var(--bg-main);
+      border: 1px solid var(--border-color);
+      padding: 12px 40px 12px 16px;
+      border-radius: var(--radius-full);
+      font-size: 14px;
+      transition: all var(--transition-fast);
+    }
+
+    .search-input:focus {
+      border-color: var(--primary-color);
+      background-color: white;
+      box-shadow: 0 0 0 3px var(--primary-light);
+    }
+
+    .search-icon-btn {
+      position: absolute;
+      top: 50%;
+      right: 16px;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+    }
+
+    /* 정렬 및 카테고리 헤더 */
+    .catalog-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .catalog-count {
+      font-size: 15px;
+      color: var(--text-muted);
+    }
+
+    .catalog-count span {
+      color: var(--primary-color);
+      font-weight: 700;
+    }
+
+    .sort-select {
+      background-color: white;
+      border: 1px solid var(--border-color);
+      padding: 10px 36px 10px 16px;
+      border-radius: var(--radius-full);
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-dark);
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23666666'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 16px center;
+      background-size: 16px;
+    }
+
+    /* 카테고리 슬라이드 탭 */
+    .category-tabs-bar {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      padding-bottom: 20px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .category-tab-btn {
+      white-space: nowrap;
+      padding: 10px 24px;
+      border-radius: var(--radius-full);
+      background-color: white;
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 14px;
+      border: 1px solid var(--border-color);
+      transition: all var(--transition-fast);
+    }
+
+    .category-tab-btn:hover {
+      color: var(--primary-color);
+      border-color: var(--primary-color);
+      background-color: var(--primary-light);
+    }
+
+    .category-tab-btn.active {
+      background-color: var(--primary-color);
+      color: white;
+      border-color: var(--primary-color);
+      box-shadow: 0 4px 12px rgba(120, 185, 51, 0.2);
+    }
+
+    /* 반응형 */
+    @media (max-width: 992px) {
+      .catalog-layout {
+        grid-template-columns: 1fr;
+      }
+      .filter-sidebar {
+        position: relative;
+        top: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 헤더 -->
+  <header>
+    <div class="container header-inner">
+      <div class="logo">
+        <a href="index.html">
+          <i class="fas fa-leaf" style="color: var(--primary-color);"></i>
+          풀무원
+          <span class="sub-brand">학교급식 파트너</span>
+        </a>
+      </div>
+      <nav class="nav-menu">
+        <a href="index.html" class="nav-item">홈</a>
+        <a href="products.html" class="nav-item active">급식 카탈로그</a>
+        <a href="quote.html" class="nav-item">온라인 견적신청</a>
+        <a href="about.html" class="nav-item">회사 소개</a>
+      </nav>
+      <div class="header-actions">
+        <a href="admin.html" class="btn-cart-toggle" title="관리자 모드" style="background-color: #f1f5f9; color: #64748b;">
+          <i class="fas fa-cog"></i>
+        </a>
+        <button class="btn-cart-toggle" title="견적 가방 열기">
+          <i class="fas fa-file-invoice"></i>
+          <span class="cart-count">0</span>
+        </button>
+        <a href="quote.html" class="btn-quote-nav">실시간 견적요청</a>
+        <button class="btn-mobile-menu" id="mobileMenuBtn">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 메인 레이아웃 -->
+  <main class="catalog-wrapper container">
+    <div class="section-header" style="text-align: left; margin-bottom: 30px;">
+      <span class="section-subtitle">Catalog</span>
+      <h2 class="section-title">풀무원 바른 식자재 카탈로그</h2>
+    </div>
+
+    <!-- 카테고리 탭 영역 -->
+    <div class="category-tabs-bar" id="categoryTabs">
+      <button class="category-tab-btn active" data-category="all">전체보기</button>
+      <button class="category-tab-btn" data-category="earth-diet">풀무원 지구식단</button>
+      <button class="category-tab-btn" data-category="tofu-vegetables">두부·채소류</button>
+      <button class="category-tab-btn" data-category="processed">급식가공식품</button>
+      <button class="category-tab-btn" data-category="snacks">영양간식·음료</button>
+    </div>
+
+    <div class="catalog-layout">
+      <!-- 1. 좌측 필터 사이드바 -->
+      <aside class="filter-sidebar">
+        <!-- 검색 필터 -->
+        <div class="filter-group">
+          <h4 class="filter-title">
+            <i class="fas fa-search" style="color: var(--primary-color);"></i> 식자재 검색
+          </h4>
+          <div class="search-box-wrapper">
+            <input type="text" class="search-input" id="searchInput" placeholder="제품명 또는 브랜드명 입력">
+            <button class="search-icon-btn"><i class="fas fa-search"></i></button>
+          </div>
+        </div>
+
+        <!-- 알레르기 안심 필터 (핵심 B2B 기능) -->
+        <div class="filter-group">
+          <h4 class="filter-title" style="border-color: rgba(224, 90, 71, 0.2);">
+            <i class="fas fa-shield-halved" style="color: var(--accent-color);"></i> 알레르기 안심 필터
+          </h4>
+          <p style="font-size: 11px; color: var(--text-light); margin-bottom: 12px; line-height: 1.4;">
+            *체크된 성분이 <strong>제외된</strong> 안전한 식자재만 필터링합니다.
+          </p>
+          <div class="allergy-filter-grid" id="allergyFilterContainer">
+            <!-- 알레르기 유발물질 19가지 동적 렌더링 -->
+          </div>
+        </div>
+      </aside>
+
+      <!-- 2. 우측 상품 리스트 및 정렬 -->
+      <section class="catalog-main">
+        <div class="catalog-header">
+          <div class="catalog-count">
+            조회된 식자재 <span id="productCount">0</span>개
+          </div>
+          <div class="catalog-sort">
+            <select class="sort-select" id="sortSelect">
+              <option value="popular">인기 식자재순</option>
+              <option value="price-low">견적가 낮은순</option>
+              <option value="price-high">견적가 높은순</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 상품 그리드 -->
+        <div class="product-grid" id="productCatalogGrid">
+          <!-- 상품 카드 동적 주입 -->
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- 상세조회 모달 다이얼로그 (Dialog) -->
+  <div class="modal-overlay" id="productDetailModal">
+    <div class="modal-window animate-fade-in">
+      <button class="modal-close" id="closeModalBtn">
+        <i class="fas fa-times"></i>
+      </button>
+      <div class="modal-body" id="modalContentContainer">
+        <!-- 동적 주입 -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 푸터 -->
+  <footer>
+    <div class="container">
+      <div class="footer-top">
+        <div class="footer-info-brand">
+          <h3>
+            <i class="fas fa-leaf" style="color: var(--primary-color);"></i>
+            풀무원 바른급식
+            <span class="footer-sub">B2B 파트너</span>
+          </h3>
+          <p>자라나는 학생들에게 바르고 건강한 먹거리를 제공하기 위해, 풀무원의 최고 안전 기준 식자재를 전국 학교 급식에 공급하고 있습니다.</p>
+        </div>
+        <div class="footer-links-group">
+          <div class="footer-links">
+            <h4>바로가기</h4>
+            <ul>
+              <li><a href="index.html">홈</a></li>
+              <li><a href="products.html">급식 카탈로그</a></li>
+              <li><a href="quote.html">온라인 견적신청</a></li>
+              <li><a href="about.html">회사 소개</a></li>
+            </ul>
+          </div>
+          <div class="footer-links">
+            <h4>급식 특화 가치</h4>
+            <ul>
+              <li><a href="products.html?filter=earth-diet">풀무원 지구식단</a></li>
+              <li><a href="products.html?filter=tofu-vegetables">친환경 농산물</a></li>
+              <li><a href="products.html">19대 알레르기 안심검색</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer-cs">
+          <h4>급식 납품 상담센터</h4>
+          <div class="tel">1600-8800</div>
+          <p>평일 09:00 - 18:00 (주말/공휴일 휴무)<br>이메일: b2b_support@pulmuonemeal.co.kr</p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <div class="footer-legal">
+          <a href="#" class="bold">개인정보처리방침</a>
+          <a href="#">이용약관</a>
+          <a href="#">위생관리 규정</a>
+        </div>
+        <div class="footer-copyright">
+          &copy; 2026 Pulmuone School Meal Service Inc. All rights reserved.
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/products.js"></script>
+</body>
+</html>

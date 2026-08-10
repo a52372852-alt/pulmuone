@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>회사 소개 - 풀무원 바른급식 파트너</title>
+  <meta name="description" content="안전하고 바른 먹거리를 향한 풀무원 급식 파트너의 비전과 3대 핵심 역량(위생, 저온물류, 알레르기 케어)을 소개합니다.">
+  
+  <!-- FontAwesome CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- CSS Stylesheets -->
+  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/components.css">
+  
+  <style>
+    /* 회사소개 전용 스타일 */
+    .about-wrapper {
+      padding-top: 80px;
+    }
+
+    .about-hero {
+      height: 450px;
+      position: relative;
+      background: linear-gradient(135deg, rgba(34, 66, 19, 0.9) 0%, rgba(120, 185, 51, 0.6) 100%), 
+                  url('https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=1920') no-repeat center center/cover;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      text-align: center;
+    }
+
+    .about-hero-title {
+      font-size: 42px;
+      font-weight: 900;
+      letter-spacing: -1.5px;
+      margin-bottom: 16px;
+    }
+
+    .about-hero-desc {
+      font-size: 16px;
+      color: rgba(255, 255, 255, 0.9);
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+
+    .about-section {
+      padding: 100px 0;
+    }
+
+    .about-section.alt {
+      background-color: white;
+    }
+
+    .brand-vision-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+    }
+
+    .vision-text h3 {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--secondary-color);
+      margin-bottom: 24px;
+      line-height: 1.35;
+    }
+
+    .vision-text p {
+      font-size: 15px;
+      color: var(--text-muted);
+      line-height: 1.8;
+      margin-bottom: 20px;
+    }
+
+    .vision-image {
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .vision-image img {
+      width: 100%;
+      height: auto;
+      display: block;
+      object-fit: cover;
+    }
+
+    /* 3대 핵심 역량 */
+    .strengths-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 40px;
+      margin-top: 50px;
+    }
+
+    .strength-card {
+      background-color: var(--bg-main);
+      border-radius: var(--radius-lg);
+      padding: 40px;
+      border: 1px solid var(--border-light);
+      transition: all var(--transition-normal);
+    }
+
+    .strength-card:hover {
+      transform: translateY(-8px);
+      background-color: white;
+      box-shadow: var(--shadow-lg);
+      border-color: rgba(120, 185, 51, 0.3);
+    }
+
+    .strength-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: var(--radius-md);
+      background-color: var(--primary-light);
+      color: var(--primary-color);
+      font-size: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+
+    .strength-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text-dark);
+      margin-bottom: 16px;
+    }
+
+    .strength-desc {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+
+    /* 인증 기관 엠블럼 */
+    .certs-row {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin-top: 50px;
+      flex-wrap: wrap;
+    }
+
+    .cert-badge-box {
+      background-color: white;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 16px 24px;
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .cert-badge-box i {
+      color: var(--primary-color);
+    }
+
+    @media (max-width: 992px) {
+      .brand-vision-layout {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+      .strengths-grid {
+        grid-template-columns: 1fr;
+        gap: 30px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 헤더 -->
+  <header>
+    <div class="container header-inner">
+      <div class="logo">
+        <a href="index.html">
+          <i class="fas fa-leaf" style="color: var(--primary-color);"></i>
+          풀무원
+          <span class="sub-brand">학교급식 파트너</span>
+        </a>
+      </div>
+      <nav class="nav-menu">
+        <a href="index.html" class="nav-item">홈</a>
+        <a href="products.html" class="nav-item">급식 카탈로그</a>
+        <a href="quote.html" class="nav-item">온라인 견적신청</a>
+        <a href="about.html" class="nav-item active">회사 소개</a>
+      </nav>
+      <div class="header-actions">
+        <a href="admin.html" class="btn-cart-toggle" title="관리자 모드" style="background-color: #f1f5f9; color: #64748b;">
+          <i class="fas fa-cog"></i>
+        </a>
+        <button class="btn-cart-toggle" title="견적 가방 열기">
+          <i class="fas fa-file-invoice"></i>
+          <span class="cart-count">0</span>
+        </button>
+        <a href="quote.html" class="btn-quote-nav">실시간 견적요청</a>
+        <button class="btn-mobile-menu" id="mobileMenuBtn">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 회사소개 메인 -->
+  <div class="about-wrapper">
+    <!-- 히어로 배너 -->
+    <section class="about-hero animate-fade-in">
+      <div class="container">
+        <h1 class="about-hero-title">바른 식생활 가치를 만드는 파트너</h1>
+        <p class="about-hero-desc">풀무원의 엄격하고 고집스러운 안전 철학을 기반으로, 우리의 미래인 학생들에게 매일 건강하고 신선한 식탁을 전합니다.</p>
+      </div>
+    </section>
+
+    <!-- 1. 비전 섹션 -->
+    <section class="about-section">
+      <div class="container brand-vision-layout">
+        <div class="vision-text animate-fade-in-up">
+          <h3>학교 급식 납품을 향한<br>풀무원의 깐깐한 고집과 바른 가치</h3>
+          <p>
+            우리는 단순한 식자재 유통을 넘어, 자라나는 아동과 청소년들이 건강하게 성장할 수 있도록 돕는 '바른 식생활 교육 동반자'입니다. 
+            풀무원이 선도하는 저탄소 식물성 식단(지구식단)은 환경 보호의 소중함을 급식실에서 자연스럽게 배우게 합니다.
+          </p>
+          <p>
+            유기농 농산물 인증, 철저한 HACCP 기준 통과, 그리고 가공 단계에서의 무첨가 원칙 등 
+            식품 안전의 모든 한계를 넘어 가장 깨끗하고 올바른 영양 식재료만을 공급할 것을 약속드립니다.
+          </p>
+        </div>
+        <div class="vision-image animate-fade-in-up">
+          <img src="https://images.unsplash.com/photo-1543083503-0c3555360c59?auto=format&fit=crop&q=80&w=800" alt="Fresh green fields and vegetables">
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. 핵심 역량 섹션 -->
+    <section class="about-section alt">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-subtitle">Core Strengths</span>
+          <h2 class="section-title">급식 파트너사의 3대 안심 보장 시스템</h2>
+        </div>
+
+        <div class="strengths-grid">
+          <!-- 역량 1 -->
+          <div class="strength-card">
+            <div class="strength-icon">
+              <i class="fas fa-vial-circle-check"></i>
+            </div>
+            <h3 class="strength-title">깐깐한 위생·안전 검사</h3>
+            <p class="strength-desc">풀무원 기술원(식품안전센터) 연구원들이 잔류농약, 중금속, 미생물 및 방사능 검사를 상시 수행하여 극도로 투명하고 엄선된 안전 식자재만 유통합니다.</p>
+          </div>
+
+          <!-- 역량 2 -->
+          <div class="strength-card">
+            <div class="strength-icon">
+              <i class="fas fa-snowflake"></i>
+            </div>
+            <h3 class="strength-title">완벽한 친환경 저온물류</h3>
+            <p class="strength-desc">전 차량 온도 제어 장치를 모니터링하는 콜드체인(Cold-Chain) 유통망을 통해 산지 및 생산라인의 신선도 그대로 조리실까지 전달합니다.</p>
+          </div>
+
+          <!-- 역량 3 -->
+          <div class="strength-card">
+            <div class="strength-icon">
+              <i class="fas fa-heart-pulse"></i>
+            </div>
+            <h3 class="strength-title">체계적인 알레르기 프리 케어</h3>
+            <p class="strength-desc">학교 급식 영양교사의 최대 고민인 유발 물질을 엄격히 차단한 락토프리 음료, 밀가루 대체 대체육 등 맞춤형 특수 가공 원료를 연구 및 납품합니다.</p>
+          </div>
+        </div>
+
+        <!-- 인증 엠블럼 리스트 -->
+        <div class="certs-row">
+          <div class="cert-badge-box">
+            <i class="fas fa-certificate"></i> 식품의약품안전처 HACCP 인증
+          </div>
+          <div class="cert-badge-box">
+            <i class="fas fa-certificate"></i> 농림축산식품부 유기농·무농약 인증
+          </div>
+          <div class="cert-badge-box">
+            <i class="fas fa-certificate"></i> 전통식품 품질 인증 (국산콩 두부류)
+          </div>
+          <div class="cert-badge-box">
+            <i class="fas fa-certificate"></i> 우수농산물관리 GAP 지정
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- 푸터 -->
+  <footer>
+    <div class="container">
+      <div class="footer-top">
+        <div class="footer-info-brand">
+          <h3>
+            <i class="fas fa-leaf" style="color: var(--primary-color);"></i>
+            풀무원 바른급식
+            <span class="footer-sub">B2B 파트너</span>
+          </h3>
+          <p>자라나는 학생들에게 바르고 건강한 먹거리를 제공하기 위해, 풀무원의 최고 안전 기준 식자재를 전국 학교 급식에 공급하고 있습니다.</p>
+        </div>
+        <div class="footer-links-group">
+          <div class="footer-links">
+            <h4>바로가기</h4>
+            <ul>
+              <li><a href="index.html">홈</a></li>
+              <li><a href="products.html">급식 카탈로그</a></li>
+              <li><a href="quote.html">온라인 견적신청</a></li>
+              <li><a href="about.html">회사 소개</a></li>
+            </ul>
+          </div>
+          <div class="footer-links">
+            <h4>급식 특화 가치</h4>
+            <ul>
+              <li><a href="products.html?filter=earth-diet">풀무원 지구식단</a></li>
+              <li><a href="products.html?filter=tofu-vegetables">친환경 농산물</a></li>
+              <li><a href="products.html">19대 알레르기 안심검색</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer-cs">
+          <h4>급식 납품 상담센터</h4>
+          <div class="tel">1600-8800</div>
+          <p>평일 09:00 - 18:00 (주말/공휴일 휴무)<br>이메일: b2b_support@pulmuonemeal.co.kr</p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <div class="footer-legal">
+          <a href="#" class="bold">개인정보처리방침</a>
+          <a href="#">이용약관</a>
+          <a href="#">위생관리 규정</a>
+        </div>
+        <div class="footer-copyright">
+          &copy; 2026 Pulmuone School Meal Service Inc. All rights reserved.
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/cart.js"></script>
+</body>
+</html>

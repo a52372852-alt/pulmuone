@@ -18,23 +18,14 @@ const QUICK_CATEGORIES = [
   { id: 'all', name: '전체', icon: 'fa-bars', categoryKey: 'all' },
   { id: 'earth-diet', name: '지속가능먹거리', icon: 'fa-earth-asia', categoryKey: 'earth-diet' },
   { id: 'tofu-vegetables', name: '두부·콩나물·달걀', icon: 'fa-egg', categoryKey: 'tofu-vegetables' },
-  { id: 'vegetables', name: '과일·채소·쌀', icon: 'fa-wheat-awn', categoryKey: 'unimplemented' },
-  { id: 'processed', name: '정육·수산', icon: 'fa-fish', categoryKey: 'processed' },
-  { id: 'dumpling', name: '만두·피자·떡볶이', icon: 'fa-pizza-slice', categoryKey: 'unimplemented' },
-  { id: 'soup', name: '국·탕·간편식', icon: 'fa-bowl-food', categoryKey: 'unimplemented' },
-  { id: 'noodle', name: '면요리', icon: 'fa-bowl-rice', categoryKey: 'unimplemented' },
-  { id: 'side', name: '반찬·김치', icon: 'fa-jar', categoryKey: 'unimplemented' },
-  { id: 'sauce', name: '양념·소스·오일', icon: 'fa-bottle-droplet', categoryKey: 'unimplemented' },
-  { id: 'snacks', name: '과자·간식·베이커리', icon: 'fa-cookie', categoryKey: 'snacks' },
-  { id: 'drinks', name: '생수·음료·유제품', icon: 'fa-coffee', categoryKey: 'unimplemented' },
-  { id: 'health', name: '건강식품', icon: 'fa-capsules', categoryKey: 'unimplemented' },
-  { id: 'green-juice', name: '일일배달 녹즙', icon: 'fa-wine-glass', categoryKey: 'unimplemented' },
-  { id: 'design-meal', name: '디자인밀 맞춤식단', icon: 'fa-box-tissue', categoryKey: 'unimplemented' },
-  { id: 'pets', name: '반려동물', icon: 'fa-dog', categoryKey: 'unimplemented' },
-  { id: 'beauty', name: '생활·주방·뷰티용품', icon: 'fa-soap', categoryKey: 'unimplemented' },
-  { id: 'appliances', name: '가전제품', icon: 'fa-tv', categoryKey: 'unimplemented' },
-  { id: 'gifts', name: '선물세트', icon: 'fa-gift', categoryKey: 'unimplemented' }
+  { id: 'vegetables', name: '과일·채소·쌀', icon: 'fa-wheat-awn', categoryKey: 'vegetables' },
+  { id: 'processed', name: '정육·수산·가공', icon: 'fa-fish', categoryKey: 'processed' },
+  { id: 'dumpling-noodle', name: '만두·피자·면요리', icon: 'fa-pizza-slice', categoryKey: 'dumpling-noodle' },
+  { id: 'soup-side', name: '국·탕·반찬·양념', icon: 'fa-bowl-food', categoryKey: 'soup-side' },
+  { id: 'snacks', name: '과자·간식·음료', icon: 'fa-cookie', categoryKey: 'snacks' },
+  { id: 'health', name: '건강식품·녹즙', icon: 'fa-capsules', categoryKey: 'health' }
 ];
+
 
 document.addEventListener('DOMContentLoaded', () => {
   initCatalog();
@@ -436,24 +427,15 @@ function renderSubpageHeader() {
       btn.addEventListener('click', (e) => {
         const btnElem = e.currentTarget;
         const catId = btnElem.getAttribute('data-cat-id');
-        const key = btnElem.getAttribute('data-key');
-
-        if (key === 'unimplemented') {
-          if (typeof showToast === 'function') {
-            showToast('해당 카테고리는 현재 학교 급식용 대용량 식자재가 준비 중입니다.');
-          } else {
-            alert('해당 카테고리는 현재 학교 급식용 대용량 식자재가 준비 중입니다.');
-          }
-          return;
-        }
 
         catBtns.forEach(b => b.classList.remove('active'));
         btnElem.classList.add('active');
         activeSubCategory = catId;
         filterAndRenderProducts();
-        renderSubpageHeader(); // 선택 마크 도트 갱신을 위한 리드로잉
+        renderSubpageHeader();
       });
     });
+
   }
 }
 

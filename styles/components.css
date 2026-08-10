@@ -1187,6 +1187,169 @@
   }
 }
 
+/* ==========================================================================
+   로그인, 회원가입, 고객센터 모달 & UI 전용 스타일
+   ========================================================================== */
+
+/* 상단 유틸 프로필 칩 */
+.user-profile-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: rgba(120, 185, 51, 0.15);
+  color: var(--primary-color);
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.user-logout-btn {
+  color: var(--text-muted);
+  font-size: 12px;
+  margin-left: 6px;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+/* 소셜 & 기관 로그인 버튼 */
+.social-login-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.btn-social-login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 700;
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-social-login.sso {
+  background-color: #0f172a;
+  color: #ffffff;
+  border-color: #0f172a;
+}
+
+.btn-social-login.kakao {
+  background-color: #FEE500;
+  color: #000000;
+  border-color: #FEE500;
+}
+
+.btn-social-login.naver {
+  background-color: #03C75A;
+  color: #ffffff;
+  border-color: #03C75A;
+}
+
+/* 데모 계정 자동 입력 버튼 */
+.demo-fill-btn {
+  background-color: var(--primary-light);
+  color: var(--primary-color);
+  border: 1px dashed var(--primary-color);
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  width: 100%;
+  margin-bottom: 16px;
+  transition: all var(--transition-fast);
+}
+
+.demo-fill-btn:hover {
+  background-color: var(--primary-color);
+  color: #ffffff;
+}
+
+/* 고객센터 탭 UI */
+.cs-tab-nav {
+  display: flex;
+  gap: 8px;
+  border-bottom: 2px solid var(--border-color);
+  margin-bottom: 20px;
+}
+
+.cs-tab-btn {
+  flex: 1;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-align: center;
+}
+
+.cs-tab-btn.active {
+  color: var(--primary-color);
+  border-bottom-color: var(--primary-color);
+}
+
+/* FAQ 아코디언 스타일 */
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.faq-item {
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background-color: #ffffff;
+}
+
+.faq-question {
+  padding: 14px 18px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--secondary-color);
+  background-color: var(--bg-main);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background-color var(--transition-fast);
+}
+
+.faq-question:hover {
+  background-color: #f1f5f9;
+}
+
+.faq-answer {
+  padding: 16px 18px;
+  font-size: 13px;
+  color: var(--text-dark);
+  line-height: 1.6;
+  border-top: 1px solid var(--border-light);
+  display: none;
+  background-color: #ffffff;
+}
+
+.faq-item.open .faq-answer {
+  display: block;
+}
+
+.faq-item.open .faq-question i {
+  transform: rotate(180deg);
+}
+
+
 
 
 

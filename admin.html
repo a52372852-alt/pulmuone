@@ -425,9 +425,9 @@
           <span>풀무원건강생활</span>
         </div>
         <div class="top-nav">
-          <a href="#">로그인</a>
-          <a href="#">회원가입</a>
-          <a href="#">고객센터</a>
+          <a href="#" onclick="openLoginModal(event)"><i class="fas fa-sign-in-alt"></i> 로그인</a>
+          <a href="#" onclick="openSignupModal(event)"><i class="fas fa-user-plus"></i> 회원가입</a>
+          <a href="#" onclick="openCsModal(event)"><i class="fas fa-headset"></i> 고객센터</a>
           <a href="admin.html" title="관리자 콘솔" class="active"><i class="fas fa-cog"></i> 관리자</a>
         </div>
       </div>
@@ -928,6 +928,7 @@
   <!-- Scripts -->
   <script src="js/data.js?v=6"></script>
   <script src="js/cart.js?v=6"></script>
+  <script src="js/auth.js?v=6"></script>
   <script src="js/admin.js?v=6"></script>
 </body>
 

@@ -268,10 +268,10 @@ function renderAdminQuotes() {
   const allQuotes = getQuoteRequests();
   const filterVal = document.getElementById('quoteStatusFilter') ? document.getElementById('quoteStatusFilter').value : 'all';
 
-  // 통계 계산
+  // 통계 계산 (납품 승인 완료건만 completedCount에 카운팅)
   const totalCount = allQuotes.length;
-  const pendingCount = allQuotes.filter(q => q.status === '매칭 중' || q.status === '견적 검토 중').length;
-  const completedCount = allQuotes.filter(q => q.status === '납품 승인 완료' || q.status === '상세 상담 완료').length;
+  const completedCount = allQuotes.filter(q => q.status === '납품 승인 완료').length;
+  const pendingCount = totalCount - completedCount;
   const totalAmount = allQuotes.reduce((acc, q) => acc + (q.totalPrice || 0), 0);
 
   // 요약 카드 갱신
@@ -309,12 +309,13 @@ function renderAdminQuotes() {
     function getStatusClass(status) {
       if (status === '매칭 중') return 'status-black';
       if (status === '견적 검토 중') return 'status-orange';
-      if (status === '납품 승인 완료') return 'status-blue';
       if (status === '상세 상담 완료') return 'status-red';
+      if (status === '납품 승인 완료') return 'status-blue';
       return 'status-black';
     }
 
-    const statuses = ['매칭 중', '견적 검토 중', '납품 승인 완료', '상세 상담 완료'];
+    // 납품 승인 완료 버튼(옵션)을 제일 아래에 위치
+    const statuses = ['매칭 중', '견적 검토 중', '상세 상담 완료', '납품 승인 완료'];
     let statusOptionsHtml = '';
     statuses.forEach(s => {
       const selected = (quote.status === s) ? 'selected' : '';

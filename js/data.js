@@ -77,7 +77,7 @@ const DEFAULT_PRODUCTS = [
     spec: '2kg (1입)',
     price: 8800,
     allergens: ['대두'],
-    badges: ['organic'],
+    badges: ['organic', 'popular'],
     earthSubCategory: 'eco',
     freeShipping: false,
     groupDiscount: true,
@@ -298,7 +298,7 @@ const MENU_RECOMMENDATIONS = [
 ];
 
 // 로컬스토리지 저장 키
-const DATA_STORAGE_KEY = 'pulmuone_b2b_products_v3';
+const DATA_STORAGE_KEY = 'pulmuone_b2b_products_v4';
 
 // 로컬스토리지 상품 목록 로드
 function getProducts() {
@@ -324,5 +324,6 @@ function saveProducts(productsList) {
 }
 
 let PRODUCTS = getProducts();
+
 
 

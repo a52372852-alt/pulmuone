@@ -428,14 +428,15 @@ function renderSubpageHeader() {
         const btnElem = e.currentTarget;
         const catId = btnElem.getAttribute('data-cat-id');
 
+        activeSubCategory = catId;
+        
+        // 탭 active 클래스 시각적 동기화
         catBtns.forEach(b => b.classList.remove('active'));
         btnElem.classList.add('active');
-        activeSubCategory = catId;
+        
         filterAndRenderProducts();
-        renderSubpageHeader();
       });
     });
-
   }
 }
 
@@ -449,11 +450,25 @@ function filterAndRenderProducts() {
   let filtered = PRODUCTS.filter(product => {
     // 1-1. 서브페이지 및 일반 카탈로그 모드 필터 분기
     if (currentSubpageMode) {
-      // (1) 서브페이지 배지 필터링
+      // (1) 퀵그리드 카테고리 필터링 연동 (1순위)
+      if (activeSubCategory !== 'all') {
+        const activeCatData = QUICK_CATEGORIES.find(c => c.id === activeSubCategory);
+        if (activeCatData && product.category !== activeCatData.categoryKey) {
+          return false;
+        }
+      }
+
+      // (2) 서브페이지 배지 필터링
       if (currentSubpageMode === 'best') {
-        if (!product.badges.includes('popular')) return false;
+        // 선택된 카테고리 내 popular 배지 유무 체크
+        const hasPopularInCategory = PRODUCTS.some(p => 
+          (activeSubCategory === 'all' || p.category === activeSubCategory) && p.badges && p.badges.includes('popular')
+        );
+        if (hasPopularInCategory && (!product.badges || !product.badges.includes('popular'))) {
+          return false;
+        }
       } else if (currentSubpageMode === 'sale') {
-        if (!product.badges.includes('sale')) return false;
+        if (!product.badges || !product.badges.includes('sale')) return false;
         
         // 지금세일 전용 할인 범위 필터 적용
         if (activeDiscountFilter !== 'all' && product.originalPrice) {
@@ -469,17 +484,10 @@ function filterAndRenderProducts() {
           }
         }
       } else if (currentSubpageMode === 'new') {
-        if (!product.badges.includes('new')) return false;
-      }
-
-      // (2) 퀵그리드 카테고리 필터링 연동
-      if (activeSubCategory !== 'all') {
-        const activeCatData = QUICK_CATEGORIES.find(c => c.id === activeSubCategory);
-        if (activeCatData && product.category !== activeCatData.categoryKey) {
-          return false;
-        }
+        if (!product.badges || !product.badges.includes('new')) return false;
       }
     } else {
+
       // 일반 카탈로그 필터링
       if (activeCategory !== 'all') {
         if (product.category !== activeCategory) return false;

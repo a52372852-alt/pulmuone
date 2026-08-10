@@ -259,7 +259,28 @@
 
 .btn-close-drawer:hover {
   background-color: var(--bg-main);
-  color: var(--text-dark);
+  color: var(--secondary-color);
+}
+
+.btn-continue-shopping {
+  background-color: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--secondary-color);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all var(--transition-fast);
+}
+
+.btn-continue-shopping:hover {
+  background-color: var(--primary-light);
+  color: var(--primary-color);
+  border-color: var(--primary-light);
 }
 
 .drawer-content {

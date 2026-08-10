@@ -257,9 +257,14 @@ function initCartDrawer() {
             <h3>
               <i class="fas fa-file-invoice" style="color: var(--primary-color);"></i> 견적 가방
             </h3>
-            <button class="btn-close-drawer" id="closeCartBtn">
-              <i class="fas fa-times"></i>
-            </button>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <button class="btn-continue-shopping" id="continueShoppingBtn" title="견적 가방을 닫고 계속 쇼핑합니다">
+                <i class="fas fa-arrow-left" style="font-size: 11px;"></i> 계속 쇼핑하기
+              </button>
+              <button class="btn-close-drawer" id="closeCartBtn" title="닫기">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
           </div>
           <div class="drawer-content" id="cartItemsContainer">
             <!-- 동적 삽입 -->
@@ -281,6 +286,7 @@ function initCartDrawer() {
     document.body.insertAdjacentHTML('beforeend', drawerHtml);
 
     // 이벤트 리스너 연결
+    document.getElementById('continueShoppingBtn').addEventListener('click', closeCartDrawer);
     document.getElementById('closeCartBtn').addEventListener('click', closeCartDrawer);
     document.getElementById('cartOverlay').addEventListener('click', function(e) {
       if (e.target === this) {

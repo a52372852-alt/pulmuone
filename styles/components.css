@@ -1061,5 +1061,132 @@
   color: var(--primary-color);
 }
 
+/* ==========================================================================
+   모바일 반응형 컴포넌트 커스텀 튜닝
+   ========================================================================== */
+
+/* 1. 모바일 카테고리 퀵 탭 스크롤 */
+@media (max-width: 768px) {
+  .quick-category-grid {
+    display: flex !important;
+    overflow-x: auto;
+    white-space: nowrap;
+    border: none !important;
+    background-color: transparent !important;
+    gap: 8px !important;
+    padding-bottom: 8px;
+    margin-bottom: 24px !important;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .quick-category-grid::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .quick-category-btn {
+    flex: 0 0 auto;
+    padding: 10px 16px !important;
+    border-radius: var(--radius-full) !important;
+    border: 1px solid var(--border-color) !important;
+    flex-direction: row !important;
+    gap: 6px !important;
+    font-size: 13px !important;
+  }
+  
+  .quick-category-btn i {
+    font-size: 14px !important;
+  }
+  
+  /* 2. 모바일 2열 상품 그리드 (표준 모바일 쇼핑몰 UX) */
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+    padding: 10px 0 !important;
+  }
+  
+  .product-badge {
+    top: 8px;
+    left: 8px;
+    gap: 4px;
+  }
+  
+  .badge {
+    font-size: 9px;
+    padding: 2px 6px;
+  }
+  
+  .product-info {
+    padding: 12px !important;
+  }
+  
+  .product-brand {
+    font-size: 10px;
+    margin-bottom: 2px;
+  }
+  
+  .product-name {
+    font-size: 13px;
+    height: 36px;
+    margin-bottom: 4px;
+  }
+  
+  .product-spec {
+    font-size: 11px;
+    padding: 2px 6px;
+    margin-bottom: 8px;
+  }
+  
+  .allergy-tags {
+    margin-bottom: 8px;
+  }
+  
+  .allergy-badge {
+    font-size: 9px;
+    padding: 1px 4px;
+  }
+  
+  .price-val {
+    font-size: 15px;
+  }
+  
+  .btn-add-quote {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .btn-add-quote i {
+    font-size: 12px;
+  }
+
+  /* 3. 모바일 장바구니 드로어 Full Width */
+  .cart-drawer {
+    max-width: 100% !important;
+  }
+  
+  /* 4. 모바일 모달 팝업 Full Width */
+  .modal-window {
+    width: 94% !important;
+    max-height: 85vh !important;
+    border-radius: var(--radius-md) !important;
+  }
+  
+  .nutrition-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .product-grid {
+    gap: 10px !important;
+  }
+  .product-name {
+    font-size: 12px;
+  }
+  .price-val {
+    font-size: 14px;
+  }
+}
+
+
 
 

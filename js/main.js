@@ -86,27 +86,31 @@ function initCounterAnimation() {
   counterItems.forEach(item => observer.observe(item));
 }
 
-// 모바일 메뉴 토글
+// 모바일 네비게이션 드로어 토글 로직
 const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-if (mobileMenuBtn) {
+const mobileNavOverlay = document.getElementById('mobileNavOverlay');
+const btnCloseMobileNav = document.getElementById('btnCloseMobileNav');
+
+if (mobileMenuBtn && mobileNavOverlay) {
   mobileMenuBtn.addEventListener('click', () => {
-    const navMenu = document.querySelector('.nav-menu');
-    if (navMenu) {
-      if (navMenu.style.display === 'flex') {
-        navMenu.style.display = 'none';
-      } else {
-        navMenu.style.display = 'flex';
-        navMenu.style.flexDirection = 'column';
-        navMenu.style.position = 'absolute';
-        navMenu.style.top = '80px';
-        navMenu.style.left = '0';
-        navMenu.style.width = '100%';
-        navMenu.style.backgroundColor = 'white';
-        navMenu.style.padding = '20px';
-        navMenu.style.borderBottom = '1px solid var(--border-color)';
-        navMenu.style.zIndex = '999';
-        navMenu.style.boxShadow = '0 10px 15px rgba(0,0,0,0.05)';
-      }
+    mobileNavOverlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  });
+}
+
+if (btnCloseMobileNav && mobileNavOverlay) {
+  btnCloseMobileNav.addEventListener('click', () => {
+    mobileNavOverlay.classList.remove('open');
+    document.body.style.overflow = '';
+  });
+}
+
+if (mobileNavOverlay) {
+  mobileNavOverlay.addEventListener('click', (e) => {
+    if (e.target === mobileNavOverlay) {
+      mobileNavOverlay.classList.remove('open');
+      document.body.style.overflow = '';
     }
   });
 }
+

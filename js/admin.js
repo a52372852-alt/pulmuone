@@ -305,13 +305,23 @@ function renderAdminQuotes() {
       ? (quote.items.length === 1 ? quote.items[0].name : `${quote.items[0].name} 외 ${quote.items.length - 1}건`)
       : '품목 없음';
 
-    // 진행 상태별 드롭다운 옵션 렌더링
+    // 진행 상태별 클래스 지정 (매칭중: 검정, 견적검토중: 주황, 납품승인완료: 파랑, 상세상담완료: 빨강)
+    function getStatusClass(status) {
+      if (status === '매칭 중') return 'status-black';
+      if (status === '견적 검토 중') return 'status-orange';
+      if (status === '납품 승인 완료') return 'status-blue';
+      if (status === '상세 상담 완료') return 'status-red';
+      return 'status-black';
+    }
+
     const statuses = ['매칭 중', '견적 검토 중', '납품 승인 완료', '상세 상담 완료'];
     let statusOptionsHtml = '';
     statuses.forEach(s => {
       const selected = (quote.status === s) ? 'selected' : '';
       statusOptionsHtml += `<option value="${s}" ${selected}>${s}</option>`;
     });
+
+    const currentStatusClass = getStatusClass(quote.status);
 
     html += `
       <tr>
@@ -323,7 +333,7 @@ function renderAdminQuotes() {
         <td><div class="admin-table-name" title="${itemsSummary}">${itemsSummary}</div></td>
         <td><span class="admin-table-price">${(quote.totalPrice || 0).toLocaleString()}원</span></td>
         <td>
-          <select class="status-select" onchange="handleQuoteStatusChange('${quote.receiptNo}', this.value)">
+          <select class="status-select ${currentStatusClass}" onchange="handleQuoteStatusChange('${quote.receiptNo}', this.value); updateSelectStatusClass(this);">
             ${statusOptionsHtml}
           </select>
         </td>
@@ -342,6 +352,16 @@ function renderAdminQuotes() {
   });
 
   tableBody.innerHTML = html;
+}
+
+// 셀렉트박스 변경 시 즉시 색상 클래스 갱신
+function updateSelectStatusClass(selectEl) {
+  const status = selectEl.value;
+  selectEl.className = 'status-select';
+  if (status === '매칭 중') selectEl.classList.add('status-black');
+  else if (status === '견적 검토 중') selectEl.classList.add('status-orange');
+  else if (status === '납품 승인 완료') selectEl.classList.add('status-blue');
+  else if (status === '상세 상담 완료') selectEl.classList.add('status-red');
 }
 
 // 진행 상태 변경 함수
@@ -461,13 +481,17 @@ function closeQuoteDetailModal() {
 }
 
 // -------------------------------------------------------------
-// [📊 엑셀 다운로드 (CSV UTF-8 BOM 호환) 비즈니스 로직]
+// [📊 엑셀 다운로드 (승인 완료건만 추출 / CSV UTF-8 BOM 호환)]
 // -------------------------------------------------------------
 
 function exportQuotesToExcel() {
   const quotes = getQuoteRequests();
-  if (!quotes || quotes.length === 0) {
-    alert('다운로드할 견적 접수 내역이 없습니다.');
+  
+  // '납품 승인 완료' 상태인 접수건만 필터링
+  const approvedQuotes = quotes.filter(q => q.status === '납품 승인 완료');
+
+  if (!approvedQuotes || approvedQuotes.length === 0) {
+    alert('엑셀로 다운로드할 [납품 승인 완료] 상태의 견적 신청 내역이 없습니다.\n접수 내역의 진행상태를 [납품 승인 완료]로 변경 후 다시 시도해 주세요.');
     return;
   }
 
@@ -492,7 +516,7 @@ function exportQuotesToExcel() {
   let csvRows = [];
   csvRows.push(headers.join(','));
 
-  quotes.forEach(quote => {
+  approvedQuotes.forEach(quote => {
     // 주문 품목을 한 문자열로 결합 (예: "국산콩 두부*4; 콩나물*5")
     const itemsDetailStr = quote.items && quote.items.length > 0
       ? quote.items.map(i => `${i.name.replace(/,/g, ' ')}*${i.quantity}`).join('; ')
@@ -511,14 +535,14 @@ function exportQuotesToExcel() {
       `"${quote.items ? quote.items.length : 0}"`,
       `"${itemsDetailStr.replace(/"/g, '""')}"`,
       `"${quote.totalPrice || 0}"`,
-      `"${quote.status || '매칭 중'}"`,
+      `"${quote.status || '납품 승인 완료'}"`,
       `"${(quote.extraRequest || '').replace(/"/g, '""').replace(/\n/g, ' ')}"`
     ];
 
     csvRows.push(row.join(','));
   });
 
-  // UTF-8 BOM (\uFEFF)을 추가해야 엑셀에서 한글 깨짐 없이 열립니다.
+  // UTF-8 BOM (\uFEFF)을 추가하여 엑셀에서 한글 깨짐 방지
   const csvString = '\uFEFF' + csvRows.join('\r\n');
   const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
@@ -526,14 +550,14 @@ function exportQuotesToExcel() {
   const nowStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
   const link = document.createElement('a');
   link.href = url;
-  link.setAttribute('download', `pulmuone_b2b_quote_orders_${nowStr}.csv`);
+  link.setAttribute('download', `pulmuone_approved_orders_${nowStr}.csv`);
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
 
   if (typeof showToast === 'function') {
-    showToast('B2B 견적/주문 내역이 엑셀(CSV) 파일로 다운로드되었습니다.');
+    showToast(`납품 승인 완료된 총 ${approvedQuotes.length}건의 견적 내역이 엑셀(CSV)로 내려받아졌습니다.`);
   }
 }
 

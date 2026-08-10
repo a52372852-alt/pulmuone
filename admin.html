@@ -380,14 +380,35 @@
       font-family: 'Outfit', sans-serif;
     }
 
-    /* 상태 뱃지 */
+    /* 상태 뱃지 및 셀렉트박스 색상 */
     .status-select {
-      padding: 6px 10px;
+      padding: 6px 12px;
       border-radius: var(--radius-sm);
       font-size: 12px;
-      font-weight: 700;
-      border: 1px solid var(--border-color);
+      font-weight: 800;
       cursor: pointer;
+      transition: all var(--transition-fast);
+      outline: none;
+    }
+    .status-select.status-black {
+      background-color: #0f172a;
+      color: #ffffff;
+      border: 1px solid #0f172a;
+    }
+    .status-select.status-orange {
+      background-color: #fff7ed;
+      color: #c2410c;
+      border: 1px solid #f97316;
+    }
+    .status-select.status-blue {
+      background-color: #eff6ff;
+      color: #1d4ed8;
+      border: 1px solid #3b82f6;
+    }
+    .status-select.status-red {
+      background-color: #fef2f2;
+      color: #b91c1c;
+      border: 1px solid #ef4444;
     }
   </style>
 </head>
@@ -611,8 +632,8 @@
             <h2><i class="fas fa-file-invoice-dollar" style="color: var(--primary-color);"></i> B2B 견적/주문 접수 관리</h2>
           </div>
           <div class="admin-toolbar">
-            <button class="btn-admin-action primary" onclick="exportQuotesToExcel()">
-              <i class="fas fa-file-excel"></i> 📊 엑셀 다운로드 (CSV)
+            <button class="btn-admin-action primary" onclick="exportQuotesToExcel()" title="승인 완료된 견적 건만 엑셀로 추출합니다">
+              <i class="fas fa-file-excel"></i> 📊 엑셀 다운로드 (승인 완료건)
             </button>
             <button class="btn-admin-action secondary" onclick="handleAdminLogout()">
               <i class="fas fa-sign-out-alt"></i> 로그아웃
@@ -668,14 +689,14 @@
             </span>
             <select class="select-field" id="quoteStatusFilter" onchange="renderAdminQuotes()" style="max-width: 180px; padding: 6px 12px;">
               <option value="all">전체 보기</option>
-              <option value="매칭 중">매칭 중</option>
-              <option value="견적 검토 중">견적 검토 중</option>
-              <option value="납품 승인 완료">납품 승인 완료</option>
-              <option value="상세 상담 완료">상세 상담 완료</option>
+              <option value="매칭 중">매칭 중 (검정)</option>
+              <option value="견적 검토 중">견적 검토 중 (주황)</option>
+              <option value="납품 승인 완료">납품 승인 완료 (파랑)</option>
+              <option value="상세 상담 완료">상세 상담 완료 (빨강)</option>
             </select>
 
             <span style="font-size: 13px; color: var(--text-muted); margin-left: auto;">
-              * 엑셀 버튼을 클릭하면 한글 깨짐 없이 전체 접수 목록을 Excel로 다운로드할 수 있습니다.
+              * 엑셀 버튼을 클릭하면 <strong>'납품 승인 완료'</strong> 상태의 접수건만 엑셀로 내려받습니다.
             </span>
           </div>
         </div>
@@ -905,9 +926,9 @@
   </footer>
 
   <!-- Scripts -->
-  <script src="js/data.js?v=4"></script>
-  <script src="js/cart.js?v=4"></script>
-  <script src="js/admin.js?v=4"></script>
+  <script src="js/data.js?v=5"></script>
+  <script src="js/cart.js?v=5"></script>
+  <script src="js/admin.js?v=5"></script>
 </body>
 
 </html>

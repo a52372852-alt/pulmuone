@@ -474,12 +474,12 @@
             <!-- 제품명 -->
             <div class="form-control-group">
               <label class="form-label">제품명 <span class="required">*</span></label>
-              <input type="text" class="input-field" id="formProdName" placeholder="예: 바른선 아삭단무지 (대용량)" required>
+              <input type="text" class="input-field" id="formProdName" placeholder="예: 바른선 아삭단무지 (대용량)" tabindex="1" required>
             </div>
             <!-- 브랜드 -->
             <div class="form-control-group">
               <label class="form-label">브랜드 <span class="required">*</span></label>
-              <select class="select-field" id="formProdBrand" required>
+              <select class="select-field" id="formProdBrand" tabindex="2" required>
                 <option value="풀무원 바른선">풀무원 바른선</option>
                 <option value="풀무원 지구식단">풀무원 지구식단</option>
                 <option value="풀무원 푸드머스">풀무원 푸드머스</option>
@@ -491,18 +491,23 @@
             <!-- 규격 -->
             <div class="form-control-group">
               <label class="form-label">제품 규격 <span class="required">*</span></label>
-              <input type="text" class="input-field" id="formProdSpec" placeholder="예: 2kg (1입) 또는 120ml*40입" required>
+              <input type="text" class="input-field" id="formProdSpec" placeholder="예: 2kg (1입) 또는 120ml*40입" tabindex="3" required>
             </div>
             <!-- 단가 -->
             <div class="form-control-group">
               <label class="form-label">예상 납품 단가(원) <span class="required">*</span></label>
-              <input type="number" class="input-field" id="formProdPrice" placeholder="예: 12500" min="100" required>
+              <input type="number" class="input-field" id="formProdPrice" placeholder="예: 12500" min="100" tabindex="4" required>
+            </div>
+            <!-- 정상 가격 (세일 적용시 취소선용 원래 가격) -->
+            <div class="form-control-group">
+              <label class="form-label">정상 단가(원) (세일 적용 시 원래 가격)</label>
+              <input type="number" class="input-field" id="formProdOriginalPrice" placeholder="예: 15000" min="100" tabindex="5">
             </div>
 
             <!-- 카테고리 -->
             <div class="form-control-group">
               <label class="form-label">카테고리 <span class="required">*</span></label>
-              <select class="select-field" id="formProdCategory" required>
+              <select class="select-field" id="formProdCategory" tabindex="6" required>
                 <option value="tofu-vegetables">두부·채소류</option>
                 <option value="earth-diet">풀무원 지구식단</option>
                 <option value="processed">급식가공식품</option>
@@ -512,10 +517,12 @@
             <!-- 배지 설정 -->
             <div class="form-control-group">
               <label class="form-label">가치 배지 설정 (복수선택)</label>
-              <div style="display: flex; gap: 16px; padding-top: 10px;">
+              <div style="display: flex; flex-wrap: wrap; gap: 12px 16px; padding-top: 10px;">
                 <label class="allergy-checkbox-item"><input type="checkbox" name="badges" value="organic"> 친환경</label>
                 <label class="allergy-checkbox-item"><input type="checkbox" name="badges" value="earth"> 지구식단</label>
-                <label class="allergy-checkbox-item"><input type="checkbox" name="badges" value="popular"> 인기상품</label>
+                <label class="allergy-checkbox-item"><input type="checkbox" name="badges" value="popular"> 베스트(인기)</label>
+                <label class="allergy-checkbox-item"><input type="checkbox" name="badges" value="sale"> 세일상품</label>
+                <label class="allergy-checkbox-item"><input type="checkbox" name="badges" value="new"> 신상품</label>
               </div>
             </div>
 

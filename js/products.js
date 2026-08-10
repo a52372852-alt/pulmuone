@@ -1,9 +1,35 @@
 // 카탈로그 필터링 및 상세 모달 제어
-
 let activeCategory = 'all';
 let searchQuery = '';
 let excludedAllergens = [];
 let activeSort = 'popular';
+
+// 서브페이지 전용 상태 변수
+let currentSubpageMode = ''; // '' | 'best' | 'sale' | 'new'
+let activeDiscountFilter = 'all'; // 'all' | '40-up' | '40-20' | '20-10' | '10-under'
+let activeSubCategory = 'all'; // QUICK_CATEGORIES id 매핑
+
+const QUICK_CATEGORIES = [
+  { id: 'all', name: '전체', icon: 'fa-bars', categoryKey: 'all' },
+  { id: 'earth-diet', name: '지속가능먹거리', icon: 'fa-earth-asia', categoryKey: 'earth-diet' },
+  { id: 'tofu-vegetables', name: '두부·콩나물·달걀', icon: 'fa-egg', categoryKey: 'tofu-vegetables' },
+  { id: 'vegetables', name: '과일·채소·쌀', icon: 'fa-wheat-awn', categoryKey: 'unimplemented' },
+  { id: 'processed', name: '정육·수산', icon: 'fa-fish', categoryKey: 'processed' },
+  { id: 'dumpling', name: '만두·피자·떡볶이', icon: 'fa-pizza-slice', categoryKey: 'unimplemented' },
+  { id: 'soup', name: '국·탕·간편식', icon: 'fa-bowl-food', categoryKey: 'unimplemented' },
+  { id: 'noodle', name: '면요리', icon: 'fa-bowl-rice', categoryKey: 'unimplemented' },
+  { id: 'side', name: '반찬·김치', icon: 'fa-jar', categoryKey: 'unimplemented' },
+  { id: 'sauce', name: '양념·소스·오일', icon: 'fa-bottle-droplet', categoryKey: 'unimplemented' },
+  { id: 'snacks', name: '과자·간식·베이커리', icon: 'fa-cookie', categoryKey: 'snacks' },
+  { id: 'drinks', name: '생수·음료·유제품', icon: 'fa-coffee', categoryKey: 'unimplemented' },
+  { id: 'health', name: '건강식품', icon: 'fa-capsules', categoryKey: 'unimplemented' },
+  { id: 'green-juice', name: '일일배달 녹즙', icon: 'fa-wine-glass', categoryKey: 'unimplemented' },
+  { id: 'design-meal', name: '디자인밀 맞춤식단', icon: 'fa-box-tissue', categoryKey: 'unimplemented' },
+  { id: 'pets', name: '반려동물', icon: 'fa-dog', categoryKey: 'unimplemented' },
+  { id: 'beauty', name: '생활·주방·뷰티용품', icon: 'fa-soap', categoryKey: 'unimplemented' },
+  { id: 'appliances', name: '가전제품', icon: 'fa-tv', categoryKey: 'unimplemented' },
+  { id: 'gifts', name: '선물세트', icon: 'fa-gift', categoryKey: 'unimplemented' }
+];
 
 document.addEventListener('DOMContentLoaded', () => {
   initCatalog();
@@ -84,18 +110,31 @@ function bindCatalogEvents() {
     });
   }
 
-  // 모달 닫기
-  const closeModalBtn = document.getElementById('closeModalBtn');
-  if (closeModalBtn) {
-    closeModalBtn.addEventListener('click', closeProductModal);
-  }
-  const modalOverlay = document.getElementById('productDetailModal');
-  if (modalOverlay) {
-    modalOverlay.addEventListener('click', (e) => {
-      if (e.target === modalOverlay) {
-        closeProductModal();
-      }
-    });
+    // 모달 닫기
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    if (closeModalBtn) {
+      closeModalBtn.addEventListener('click', closeProductModal);
+    }
+    const modalOverlay = document.getElementById('productDetailModal');
+    if (modalOverlay) {
+      modalOverlay.addEventListener('click', (e) => {
+        if (e.target === modalOverlay) {
+          closeProductModal();
+        }
+      });
+    }
+}
+
+// 하트 찜 토글 함수
+function toggleWishlist(btn) {
+  const icon = btn.querySelector('i');
+  btn.classList.toggle('active');
+  if (btn.classList.contains('active')) {
+    icon.classList.remove('far');
+    icon.classList.add('fas');
+  } else {
+    icon.classList.remove('fas');
+    icon.classList.add('far');
   }
 }
 
@@ -105,31 +144,64 @@ function parseQueryParams() {
   
   // 카테고리 및 배지 통합 필터 파라미터 처리
   const filterParam = params.get('filter');
-  if (filterParam) {
-    if (filterParam.startsWith('category_')) {
-      const catVal = filterParam.replace('category_', '');
-      activeCategory = catVal;
-      
-      const tab = document.querySelector(`.category-tab-btn[data-category="${catVal}"]`);
-      if (tab) {
-        document.querySelectorAll('.category-tab-btn').forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
+  
+  const titleElem = document.getElementById('catalogTitle');
+  const subtitleElem = document.getElementById('catalogSubtitle');
+  const normalTabs = document.getElementById('categoryTabs');
+
+  if (filterParam && ['best', 'sale', 'new'].includes(filterParam)) {
+    currentSubpageMode = filterParam;
+    activeCategory = 'all'; // 일반 카탈로그용 카테고리는 초기화
+    
+    // 일반 카테고리 탭은 가림
+    if (normalTabs) normalTabs.style.display = 'none';
+
+    // 타이틀 갱신
+    if (titleElem && subtitleElem) {
+      if (filterParam === 'best') {
+        subtitleElem.textContent = 'Best Product';
+        titleElem.textContent = '풀무원 급식 베스트 인기 상품';
+      } else if (filterParam === 'sale') {
+        subtitleElem.textContent = 'Hot Sale';
+        titleElem.textContent = '실시간 예상 납품단가 특가 세일';
+      } else if (filterParam === 'new') {
+        subtitleElem.textContent = 'New Product';
+        titleElem.textContent = '신선함을 더한 신규 급식 식자재';
       }
-    } else if (['best', 'sale', 'new'].includes(filterParam)) {
-      activeCategory = filterParam;
-      
-      // 베스트/세일/신상의 경우 카테고리 탭은 '전체보기'를 활성화
-      const tab = document.querySelector(`.category-tab-btn[data-category="all"]`);
-      if (tab) {
-        document.querySelectorAll('.category-tab-btn').forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-      }
-    } else {
-      activeCategory = filterParam;
-      const tab = document.querySelector(`.category-tab-btn[data-category="${filterParam}"]`);
-      if (tab) {
-        document.querySelectorAll('.category-tab-btn').forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
+    }
+
+    // 동적 서브헤더 렌더링
+    renderSubpageHeader();
+
+  } else {
+    // 일반 카탈로그 모드
+    currentSubpageMode = '';
+    activeSubCategory = 'all';
+    activeDiscountFilter = 'all';
+    
+    if (normalTabs) normalTabs.style.display = 'flex';
+    if (titleElem && subtitleElem) {
+      subtitleElem.textContent = 'Catalog';
+      titleElem.textContent = '풀무원 바른 식자재 카탈로그';
+    }
+
+    if (filterParam) {
+      if (filterParam.startsWith('category_')) {
+        const catVal = filterParam.replace('category_', '');
+        activeCategory = catVal;
+        
+        const tab = document.querySelector(`.category-tab-btn[data-category="${catVal}"]`);
+        if (tab) {
+          document.querySelectorAll('.category-tab-btn').forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+        }
+      } else {
+        activeCategory = filterParam;
+        const tab = document.querySelector(`.category-tab-btn[data-category="${filterParam}"]`);
+        if (tab) {
+          document.querySelectorAll('.category-tab-btn').forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+        }
       }
     }
   }
@@ -144,6 +216,91 @@ function parseQueryParams() {
   }
 }
 
+// 서브페이지 전용 헤더 및 카테고리 퀵 선택 패널 드로잉
+function renderSubpageHeader() {
+  const container = document.getElementById('dynamicSubpageHeader');
+  if (!container) return;
+
+  if (!currentSubpageMode) {
+    container.innerHTML = '';
+    return;
+  }
+
+  let html = '';
+
+  // 1. 지금세일 모드일 때: 할인율 필터 바 노출
+  if (currentSubpageMode === 'sale') {
+    html += `
+      <div class="discount-filter-tabs">
+        <button class="discount-filter-btn ${activeDiscountFilter === 'all' ? 'active' : ''}" data-discount="all">전체</button>
+        <button class="discount-filter-btn ${activeDiscountFilter === '40-up' ? 'active' : ''}" data-discount="40-up">40% 이상</button>
+        <button class="discount-filter-btn ${activeDiscountFilter === '40-20' ? 'active' : ''}" data-discount="40-20">40% ~ 20%</button>
+        <button class="discount-filter-btn ${activeDiscountFilter === '20-10' ? 'active' : ''}" data-discount="20-10">20% ~ 10%</button>
+        <button class="discount-filter-btn ${activeDiscountFilter === '10-under' ? 'active' : ''}" data-discount="10-under">10% 미만</button>
+      </div>
+    `;
+  }
+
+  // 2. 베스트 또는 지금세일 모드일 때: 카테고리 퀵그리드 노출
+  if (currentSubpageMode === 'best' || currentSubpageMode === 'sale') {
+    html += `<div class="quick-category-grid">`;
+    QUICK_CATEGORIES.forEach(cat => {
+      const isActive = activeSubCategory === cat.id;
+      html += `
+        <button class="quick-category-btn ${isActive ? 'active' : ''}" data-cat-id="${cat.id}" data-key="${cat.categoryKey}">
+          <i class="fas ${cat.icon}"></i>
+          <span>${cat.name}</span>
+          ${isActive ? '<div class="active-dot"></div>' : ''}
+        </button>
+      `;
+    });
+    html += `</div>`;
+  }
+
+  container.innerHTML = html;
+
+  // 이벤트 바인딩
+  // 1. 할인율 필터 이벤트
+  if (currentSubpageMode === 'sale') {
+    const discountBtns = container.querySelectorAll('.discount-filter-btn');
+    discountBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        discountBtns.forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+        activeDiscountFilter = e.target.getAttribute('data-discount');
+        filterAndRenderProducts();
+      });
+    });
+  }
+
+  // 2. 카테고리 퀵그리드 이벤트
+  if (currentSubpageMode === 'best' || currentSubpageMode === 'sale') {
+    const catBtns = container.querySelectorAll('.quick-category-btn');
+    catBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const btnElem = e.currentTarget;
+        const catId = btnElem.getAttribute('data-cat-id');
+        const key = btnElem.getAttribute('data-key');
+
+        if (key === 'unimplemented') {
+          if (typeof showToast === 'function') {
+            showToast('해당 카테고리는 현재 학교 급식용 대용량 식자재가 준비 중입니다.');
+          } else {
+            alert('해당 카테고리는 현재 학교 급식용 대용량 식자재가 준비 중입니다.');
+          }
+          return;
+        }
+
+        catBtns.forEach(b => b.classList.remove('active'));
+        btnElem.classList.add('active');
+        activeSubCategory = catId;
+        filterAndRenderProducts();
+        renderSubpageHeader(); // 선택 마크 도트 갱신을 위한 리드로잉
+      });
+    });
+  }
+}
+
 // 상품 필터링 및 렌더링 핵심 로직
 function filterAndRenderProducts() {
   const grid = document.getElementById('productCatalogGrid');
@@ -152,15 +309,41 @@ function filterAndRenderProducts() {
 
   // 1. 필터링 처리
   let filtered = PRODUCTS.filter(product => {
-    // 1-1. 카테고리 및 배지 통합 필터
-    if (activeCategory !== 'all') {
-      if (activeCategory === 'best') {
+    // 1-1. 서브페이지 및 일반 카탈로그 모드 필터 분기
+    if (currentSubpageMode) {
+      // (1) 서브페이지 배지 필터링
+      if (currentSubpageMode === 'best') {
         if (!product.badges.includes('popular')) return false;
-      } else if (activeCategory === 'sale') {
+      } else if (currentSubpageMode === 'sale') {
         if (!product.badges.includes('sale')) return false;
-      } else if (activeCategory === 'new') {
+        
+        // 지금세일 전용 할인 범위 필터 적용
+        if (activeDiscountFilter !== 'all' && product.originalPrice) {
+          const discountRate = Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
+          if (activeDiscountFilter === '40-up') {
+            if (discountRate < 40) return false;
+          } else if (activeDiscountFilter === '40-20') {
+            if (discountRate >= 40 || discountRate < 20) return false;
+          } else if (activeDiscountFilter === '20-10') {
+            if (discountRate >= 20 || discountRate < 10) return false;
+          } else if (activeDiscountFilter === '10-under') {
+            if (discountRate >= 10) return false;
+          }
+        }
+      } else if (currentSubpageMode === 'new') {
         if (!product.badges.includes('new')) return false;
-      } else {
+      }
+
+      // (2) 퀵그리드 카테고리 필터링 연동
+      if (activeSubCategory !== 'all') {
+        const activeCatData = QUICK_CATEGORIES.find(c => c.id === activeSubCategory);
+        if (activeCatData && product.category !== activeCatData.categoryKey) {
+          return false;
+        }
+      }
+    } else {
+      // 일반 카탈로그 필터링
+      if (activeCategory !== 'all') {
         if (product.category !== activeCategory) return false;
       }
     }
@@ -200,6 +383,13 @@ function filterAndRenderProducts() {
     countLabel.textContent = filtered.length;
   }
 
+  // 3열 와이드 그리드 클래스 제어 (신상품 뷰 전용)
+  if (currentSubpageMode === 'new') {
+    grid.classList.add('grid-new-layout');
+  } else {
+    grid.classList.remove('grid-new-layout');
+  }
+
   // 3. 카드 HTML 생성 및 주입
   if (filtered.length === 0) {
     grid.innerHTML = `
@@ -212,7 +402,7 @@ function filterAndRenderProducts() {
   }
 
   let html = '';
-  filtered.forEach(product => {
+  filtered.forEach((product, index) => {
     // 배지 HTML 생성
     let badgesHtml = '';
     product.badges.forEach(badge => {
@@ -233,6 +423,26 @@ function filterAndRenderProducts() {
       allergyHtml += '<span class="allergy-badge">알레르기 無</span>';
     }
 
+    // 랭킹 번호 마크업 (베스트 인기 뷰 전용)
+    let rankHtml = '';
+    if (currentSubpageMode === 'best') {
+      const rankNum = String(index + 1).padStart(2, '0');
+      rankHtml = `<div class="rank-num">${rankNum}_</div>`;
+    }
+
+    // 평점/리뷰 메타 마크업 (신상품 뷰 전용)
+    let metaHtml = '';
+    if (currentSubpageMode === 'new') {
+      const rating = product.rating || 4.8;
+      const reviewCount = product.reviewCount || 150;
+      metaHtml = `
+        <div class="product-meta-row">
+          <span class="star-rating"><i class="fas fa-star"></i> ${rating.toFixed(1)}</span>
+          <span class="review-count"><i class="far fa-comment-dots"></i> ${reviewCount}</span>
+        </div>
+      `;
+    }
+
     // 할인 가격 표시 처리
     let priceHtml = '';
     if (product.badges.includes('sale') && product.originalPrice) {
@@ -242,7 +452,7 @@ function filterAndRenderProducts() {
           <span class="price-label">예상 납품단가</span>
           <span class="original-price-val">${product.originalPrice.toLocaleString()}원</span>
           <span class="price-val">
-            <span class="sale-discount-badge">${discountRate}%</span>${product.price.toLocaleString()}<span>원</span>
+            <span class="sale-discount-badge" style="${currentSubpageMode === 'best' || currentSubpageMode === 'sale' ? 'font-size:20px; font-weight:800;' : ''}">${discountRate}%</span>${product.price.toLocaleString()}<span>원</span>
           </span>
         </div>
       `;
@@ -255,8 +465,12 @@ function filterAndRenderProducts() {
       `;
     }
 
+    // 신상품은 신상 카드 스타일 가미
+    const cardClass = currentSubpageMode === 'new' ? 'product-card new-style animate-fade-in-up' : 'product-card animate-fade-in-up';
+
     html += `
-      <div class="product-card animate-fade-in-up">
+      <div class="${cardClass}">
+        ${rankHtml}
         <div class="product-badge">${badgesHtml}</div>
         <div class="product-image-wrapper" onclick="openProductModal(${product.id})">
           <img src="${product.image}" alt="${product.name}">
@@ -268,11 +482,17 @@ function filterAndRenderProducts() {
           <div class="allergy-tags">
             ${allergyHtml}
           </div>
-          <div class="product-price-row">
+          ${metaHtml}
+          <div class="product-price-row" style="margin-top: 12px; display: flex; justify-content: space-between; align-items: flex-end;">
             ${priceHtml}
-            <button class="btn-add-quote" onclick="addToCart(${product.id})" title="견적 가방에 담기">
-              <i class="fas fa-cart-plus"></i>
-            </button>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <button class="btn-wish-toggle" onclick="toggleWishlist(this)" title="찜하기">
+                <i class="far fa-heart"></i>
+              </button>
+              <button class="btn-add-quote" onclick="addToCart(${product.id})" title="견적 가방에 담기" style="position: static; transform: none;">
+                <i class="fas fa-cart-plus"></i>
+              </button>
+            </div>
           </div>
         </div>
       </div>

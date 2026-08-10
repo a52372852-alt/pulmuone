@@ -199,33 +199,33 @@ function updateImagePreview(url) {
 
 // 제품 추가/수정 모달 열기
 function openProductFormModal(productId = null) {
-  const modal = document.getElementById('productFormModal');
-  const title = document.getElementById('formModalTitle');
-  const form = document.getElementById('productForm');
-  
-  if (!modal || !form) return;
-
-  // 폼 필드 초기화
-  form.reset();
-  document.getElementById('editProductId').value = '';
+  // 초기화 및 복원
+  document.getElementById('editProductId').value = productId || '';
+  document.getElementById('productForm').reset();
   document.getElementById('formProdImageUrl').value = '';
+  document.getElementById('formImageFile').value = '';
   updateImagePreview('');
-  
-  // 체크박스 수동 클리어
+
+  const title = document.getElementById('formModalTitle');
+  const modal = document.getElementById('productFormModal');
+
+  // 체크박스들 강제 해제 초기화
   document.querySelectorAll('input[name="badges"]').forEach(cb => cb.checked = false);
 
   if (productId) {
     // 수정 모드
-    title.textContent = '식자재 상세정보 수정';
-    const currentProducts = getProducts();
-    const product = currentProducts.find(p => p.id === productId);
-    
+    title.textContent = '식자재 정보 수정';
+    const product = getProducts().find(p => p.id === productId);
     if (product) {
       document.getElementById('editProductId').value = product.id;
       document.getElementById('formProdName').value = product.name;
       document.getElementById('formProdBrand').value = product.brand;
       document.getElementById('formProdSpec').value = product.spec;
       document.getElementById('formProdPrice').value = product.price;
+      
+      // 정상 가격 바인딩
+      document.getElementById('formProdOriginalPrice').value = product.originalPrice || '';
+      
       document.getElementById('formProdCategory').value = product.category;
       document.getElementById('formProdImageUrl').value = product.image;
       updateImagePreview(product.image);
@@ -252,6 +252,7 @@ function openProductFormModal(productId = null) {
   } else {
     // 신규 등록 모드
     title.textContent = '식자재 신규 등록';
+    document.getElementById('formProdOriginalPrice').value = '';
     renderFormAllergyCheckboxes([]);
   }
 
@@ -275,12 +276,17 @@ function handleProductFormSubmit(event) {
   const brand = document.getElementById('formProdBrand').value;
   const spec = document.getElementById('formProdSpec').value.trim();
   const price = parseInt(document.getElementById('formProdPrice').value);
+  
+  // 정상가 파싱
+  const originalPriceVal = document.getElementById('formProdOriginalPrice').value.trim();
+  const originalPrice = originalPriceVal ? parseInt(originalPriceVal) : null;
+  
   const category = document.getElementById('formProdCategory').value;
   
-  // 이미지 처리 (Base64 파일이 우선이되, 파일이 없으면 텍스트 URL 사용. 둘 다 없으면 기본 플레이스홀더)
+  // 이미지 처리
   let image = document.getElementById('formProdImageUrl').value.trim();
   if (!image) {
-    image = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=400'; // 두부 기본 썸네일
+    image = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=400';
   }
 
   const description = document.getElementById('formProdDesc').value.trim();
@@ -304,14 +310,19 @@ function handleProductFormSubmit(event) {
 
   const currentProducts = getProducts();
 
+  const productData = {
+    name, brand, spec, price, category, image, allergens, badges, nutrition, description
+  };
+  if (originalPrice) {
+    productData.originalPrice = originalPrice;
+  }
+
   if (idVal) {
     // 수정 저장
     const id = parseInt(idVal);
     const index = currentProducts.findIndex(p => p.id === id);
     if (index > -1) {
-      currentProducts[index] = {
-        id, name, brand, spec, price, category, image, allergens, badges, nutrition, description
-      };
+      currentProducts[index] = { id, ...productData };
       if (typeof showToast === 'function') {
         showToast(`'${name}' 식자재 정보가 수정되었습니다.`);
       }
@@ -319,9 +330,7 @@ function handleProductFormSubmit(event) {
   } else {
     // 신규 추가 저장 (가장 큰 ID + 1로 신규 ID 생성)
     const newId = currentProducts.length > 0 ? Math.max(...currentProducts.map(p => p.id)) + 1 : 1;
-    currentProducts.push({
-      id: newId, name, brand, spec, price, category, image, allergens, badges, nutrition, description
-    });
+    currentProducts.push({ id: newId, ...productData });
     if (typeof showToast === 'function') {
       showToast(`신규 식자재 '${name}'이(가) 카탈로그에 등록되었습니다.`);
     }

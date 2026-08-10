@@ -288,11 +288,14 @@
   <!-- 메인 레이아웃 -->
   <main class="catalog-wrapper container">
     <div class="section-header" style="text-align: left; margin-bottom: 30px;">
-      <span class="section-subtitle">Catalog</span>
-      <h2 class="section-title">풀무원 바른 식자재 카탈로그</h2>
+      <span class="section-subtitle" id="catalogSubtitle">Catalog</span>
+      <h2 class="section-title" id="catalogTitle">풀무원 바른 식자재 카탈로그</h2>
     </div>
 
-    <!-- 카테고리 탭 영역 -->
+    <!-- 베스트/세일/신상 전용 동적 레이아웃 홀더 -->
+    <div id="dynamicSubpageHeader"></div>
+
+    <!-- 카테고리 탭 영역 (일반 카탈로그용) -->
     <div class="category-tabs-bar" id="categoryTabs">
       <button class="category-tab-btn active" data-category="all">전체보기</button>
       <button class="category-tab-btn" data-category="earth-diet">풀무원 지구식단</button>

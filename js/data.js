@@ -74,6 +74,8 @@ const DEFAULT_PRODUCTS = [
     price: 48000,
     allergens: [],
     badges: ['popular', 'new'],
+    rating: 4.8,
+    reviewCount: 307,
     image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&q=80&w=400',
     nutrition: {
       servingSize: '1병(120ml)당',
@@ -208,6 +210,8 @@ const DEFAULT_PRODUCTS = [
     price: 19800,
     allergens: ['난류'],
     badges: ['new'],
+    rating: 4.9,
+    reviewCount: 96,
     image: 'https://images.unsplash.com/photo-1506976785307-8732e854ad03?auto=format&fit=crop&q=80&w=400',
     nutrition: {
       servingSize: '1알(45g)당',
@@ -228,6 +232,8 @@ const DEFAULT_PRODUCTS = [
     originalPrice: 29000,
     allergens: ['대두', '밀'],
     badges: ['earth', 'new', 'sale'],
+    rating: 4.7,
+    reviewCount: 412,
     image: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&q=80&w=400',
     nutrition: {
       servingSize: '100g당',
@@ -277,9 +283,9 @@ function getProducts() {
   if (localData) {
     try {
       const parsed = JSON.parse(localData);
-      // 신규 스키마(sale 배지) 존재 여부 검사하여 구버전일 경우 갱신
-      const hasSaleBadge = parsed.some(p => p.badges && p.badges.includes('sale'));
-      if (hasSaleBadge) {
+      // 신규 스키마(rating 속성) 존재 여부 검사하여 구버전일 경우 갱신
+      const hasRatingSchema = parsed.some(p => p.rating !== undefined);
+      if (hasRatingSchema) {
         return parsed;
       }
     } catch (e) {

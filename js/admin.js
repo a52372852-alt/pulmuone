@@ -2,9 +2,61 @@
 
 const ADMIN_SESSION_KEY = 'pulmuone_admin_session';
 const QUOTE_STORAGE_KEY = 'pulmuone_quote_requests';
+const PARTNER_USERS_KEY = 'pulmuone_partner_users';
 
-// 초기 샘플 견적 접수 데이터 주입
-const DEMO_QUOTE_REQUESTS = [
+// 초기 샘플 급식 파트너 회원 데이터
+const DEMO_PARTNER_USERS = [
+  {
+    joinDate: '2026-08-10 14:15',
+    userType: '영양교사/조리사',
+    schoolName: '안심초등학교',
+    name: '김영양',
+    email: 'teacher@ansim.es.kr',
+    tel: '010-1234-5678',
+    authProvider: '카카오 간편가입',
+    status: '승인 완료'
+  },
+  {
+    joinDate: '2026-08-10 10:30',
+    userType: '영양교사/조리사',
+    schoolName: '서울초등학교',
+    name: '홍길동',
+    email: 'hong@seoul.es.kr',
+    tel: '010-9876-5432',
+    authProvider: '일반 회원가입',
+    status: '승인 완료'
+  },
+  {
+    joinDate: '2026-08-09 16:45',
+    userType: '영양교사/조리사',
+    schoolName: '서울중학교',
+    name: '박급식',
+    email: 'park@seoul.ms.kr',
+    tel: '010-3333-5555',
+    authProvider: '네이버 간편가입',
+    status: '승인 완료'
+  },
+  {
+    joinDate: '2026-08-08 11:20',
+    userType: '기업/기관 급식담당',
+    schoolName: '한국공공기관 급식실',
+    name: '이기업',
+    email: 'lee@korea.gov.kr',
+    tel: '010-7777-8888',
+    authProvider: '전국 교육청 SSO',
+    status: '승인 대기'
+  },
+  {
+    joinDate: '2026-08-07 09:10',
+    userType: '유치원/어린이집',
+    schoolName: '해맑은 유치원',
+    name: '최원장',
+    email: 'choi@bright.child.kr',
+    tel: '010-5555-4444',
+    authProvider: '일반 회원가입',
+    status: '승인 완료'
+  }
+];
   {
     receiptNo: 'PM-84920192',
     requestDate: '2026-08-10 14:20',
@@ -70,27 +122,65 @@ function saveQuoteRequests(quotes) {
   updateQuoteBadgeCount();
 }
 
+// 파트너 회원 데이터 로컬스토리지 입출력
+function getPartnerUsers() {
+  const dataStr = localStorage.getItem(PARTNER_USERS_KEY);
+  if (!dataStr) {
+    localStorage.setItem(PARTNER_USERS_KEY, JSON.stringify(DEMO_PARTNER_USERS));
+    return DEMO_PARTNER_USERS;
+  }
+  try {
+    return JSON.parse(dataStr);
+  } catch (e) {
+    return [];
+  }
+}
+
+function savePartnerUsers(users) {
+  localStorage.setItem(PARTNER_USERS_KEY, JSON.stringify(users));
+  updateUserBadgeCount();
+}
+
+function updateUserBadgeCount() {
+  const badge = document.getElementById('userBadgeCount');
+  if (badge) {
+    const users = getPartnerUsers();
+    badge.textContent = users.length;
+  }
+}
+
 // 탭 전환 제어
 function switchAdminTab(tabName) {
   const btnProducts = document.getElementById('tabBtnProducts');
   const btnQuotes = document.getElementById('tabBtnQuotes');
+  const btnUsers = document.getElementById('tabBtnUsers');
+
   const contentProducts = document.getElementById('tabContentProducts');
   const contentQuotes = document.getElementById('tabContentQuotes');
+  const contentUsers = document.getElementById('tabContentUsers');
 
   if (!btnProducts || !btnQuotes || !contentProducts || !contentQuotes) return;
 
+  if (btnProducts) btnProducts.classList.remove('active');
+  if (btnQuotes) btnQuotes.classList.remove('active');
+  if (btnUsers) btnUsers.classList.remove('active');
+
+  if (contentProducts) contentProducts.style.display = 'none';
+  if (contentQuotes) contentQuotes.style.display = 'none';
+  if (contentUsers) contentUsers.style.display = 'none';
+
   if (tabName === 'products') {
-    btnProducts.classList.add('active');
-    btnQuotes.classList.remove('active');
-    contentProducts.style.display = 'block';
-    contentQuotes.style.display = 'none';
+    if (btnProducts) btnProducts.classList.add('active');
+    if (contentProducts) contentProducts.style.display = 'block';
     renderAdminProducts();
   } else if (tabName === 'quotes') {
-    btnProducts.classList.remove('active');
-    btnQuotes.classList.add('active');
-    contentProducts.style.display = 'none';
-    contentQuotes.style.display = 'block';
+    if (btnQuotes) btnQuotes.classList.add('active');
+    if (contentQuotes) contentQuotes.style.display = 'block';
     renderAdminQuotes();
+  } else if (tabName === 'users') {
+    if (btnUsers) btnUsers.classList.add('active');
+    if (contentUsers) contentUsers.style.display = 'block';
+    renderUserTable();
   }
 }
 
@@ -115,6 +205,7 @@ function checkAdminAuth() {
     loginSection.style.display = 'none';
     dashboardSection.style.display = 'block';
     updateQuoteBadgeCount();
+    updateUserBadgeCount();
     renderAdminProducts();
     bindAdminEvents();
   } else {
@@ -803,5 +894,234 @@ function importProductsJSON(event) {
   };
   reader.readAsText(file);
   event.target.value = '';
+}
+
+// -------------------------------------------------------------
+// [탭 3] 급식 파트너 회원 관리 비즈니스 로직
+// -------------------------------------------------------------
+
+// 회원 관리 테이블 렌더링 및 통계 갱신
+function renderUserTable() {
+  const tableBody = document.getElementById('adminUserTableBody');
+  if (!tableBody) return;
+
+  const users = getPartnerUsers();
+  const filterType = document.getElementById('userTypeFilter') ? document.getElementById('userTypeFilter').value : 'ALL';
+  const searchQuery = document.getElementById('userSearchInput') ? document.getElementById('userSearchInput').value.trim().toLowerCase() : '';
+
+  // 1. 통계 카드 갱신
+  const totalCount = users.length;
+  const teacherCount = users.filter(u => u.userType === '영양교사/조리사').length;
+  const bizCount = users.filter(u => u.userType === '기업/기관 급식담당').length;
+  const newCount = users.filter(u => u.status === '승인 대기' || u.joinDate.includes('2026-08-10')).length;
+
+  if (document.getElementById('statTotalUsersCount')) document.getElementById('statTotalUsersCount').textContent = `${totalCount} 명`;
+  if (document.getElementById('statTeacherUsersCount')) document.getElementById('statTeacherUsersCount').textContent = `${teacherCount} 명`;
+  if (document.getElementById('statBizUsersCount')) document.getElementById('statBizUsersCount').textContent = `${bizCount} 명`;
+  if (document.getElementById('statNewUsersCount')) document.getElementById('statNewUsersCount').textContent = `${newCount} 명`;
+
+  updateUserBadgeCount();
+
+  // 2. 필터 및 검색 적용
+  let filteredUsers = users.filter(u => {
+    const matchType = (filterType === 'ALL' || u.userType === filterType);
+    const matchSearch = !searchQuery || 
+      (u.schoolName && u.schoolName.toLowerCase().includes(searchQuery)) ||
+      (u.name && u.name.toLowerCase().includes(searchQuery)) ||
+      (u.email && u.email.toLowerCase().includes(searchQuery));
+    return matchType && matchSearch;
+  });
+
+  if (filteredUsers.length === 0) {
+    tableBody.innerHTML = `
+      <tr>
+        <td colspan="9" style="text-align: center; padding: 40px; color: var(--text-muted);">
+          <i class="fas fa-users-slash" style="font-size: 32px; margin-bottom: 10px; display: block;"></i>
+          조건에 부합하는 급식 파트너 회원이 없습니다.
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  // 3. 테이블 HTML 생성
+  tableBody.innerHTML = filteredUsers.map((user, index) => {
+    // 가입 수단별 배지 디자인
+    let providerBadge = `<span class="badge-custom" style="background:#e2e8f0; color:#334155;">일반 가입</span>`;
+    if (user.authProvider.includes('카카오')) {
+      providerBadge = `<span class="badge-custom" style="background:#FEE500; color:#000; font-weight:700;"><i class="fas fa-comment"></i> 카카오</span>`;
+    } else if (user.authProvider.includes('네이버')) {
+      providerBadge = `<span class="badge-custom" style="background:#03C75A; color:#fff; font-weight:700;"><i class="fas fa-bold"></i> 네이버</span>`;
+    } else if (user.authProvider.includes('SSO') || user.authProvider.includes('교육청')) {
+      providerBadge = `<span class="badge-custom" style="background:#0f172a; color:#fff; font-weight:700;"><i class="fas fa-university"></i> 교육청 SSO</span>`;
+    }
+
+    // 회원 상태 색상
+    const isApproved = user.status === '승인 완료';
+    const statusSelectClass = isApproved ? 'status-blue' : 'status-orange';
+
+    return `
+      <tr>
+        <td style="font-size: 12px; color: var(--text-muted);">${user.joinDate}</td>
+        <td><strong style="color: var(--secondary-color); font-size: 13px;">${user.userType}</strong></td>
+        <td><strong style="color: var(--primary-color);">${user.schoolName}</strong></td>
+        <td>${user.name}</td>
+        <td style="font-size: 13px; color: #2563eb;">${user.email}</td>
+        <td style="font-size: 13px;">${user.tel || '010-0000-0000'}</td>
+        <td>${providerBadge}</td>
+        <td>
+          <select class="status-select ${statusSelectClass}" onchange="handleUserStatusChange(${index}, this.value)">
+            <option value="승인 대기" ${!isApproved ? 'selected' : ''}>승인 대기</option>
+            <option value="승인 완료" ${isApproved ? 'selected' : ''}>승인 완료</option>
+          </select>
+        </td>
+        <td>
+          <div style="display:flex; gap:4px; justify-content:center;">
+            <button class="btn-admin-action secondary" onclick="openUserDetailModal(${index})" style="padding: 4px 8px; font-size: 12px;" title="상세보기">
+              <i class="fas fa-search"></i>
+            </button>
+            <button class="btn-admin-action secondary" onclick="deletePartnerUser(${index})" style="padding: 4px 8px; font-size: 12px; color:#dc2626;" title="회원 삭제">
+              <i class="fas fa-trash-alt"></i>
+            </button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+// 회원 승인 상태 변경
+function handleUserStatusChange(index, newStatus) {
+  const users = getPartnerUsers();
+  if (users[index]) {
+    users[index].status = newStatus;
+    savePartnerUsers(users);
+    renderUserTable();
+    if (typeof showToast === 'function') {
+      showToast(`'${users[index].name}' 파트너 회원 상태가 [${newStatus}]로 변경되었습니다.`);
+    }
+  }
+}
+
+// 회원 상세 정보 모달 열기
+function openUserDetailModal(index) {
+  const users = getPartnerUsers();
+  const user = users[index];
+  if (!user) return;
+
+  const modal = document.getElementById('adminUserDetailModal');
+  const body = document.getElementById('adminUserDetailBody');
+  if (!modal || !body) return;
+
+  body.innerHTML = `
+    <div style="text-align: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 16px;">
+      <h3 style="font-size: 20px; font-weight: 800; color: var(--secondary-color);">
+        <i class="fas fa-id-card" style="color: var(--primary-color);"></i> 파트너 회원 상세 프로필
+      </h3>
+      <span class="badge-custom" style="background: var(--primary-light); color: var(--primary-color); font-weight: 700; margin-top: 6px; display: inline-block;">
+        ${user.userType}
+      </span>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; font-size: 14px; margin-bottom: 24px;">
+      <div style="background:#f8fafc; padding:12px; border-radius:6px;">
+        <span style="font-size:12px; color:#64748b; display:block;">소속 기관/학교명</span>
+        <strong style="font-size:15px; color:#0f172a;">${user.schoolName}</strong>
+      </div>
+      <div style="background:#f8fafc; padding:12px; border-radius:6px;">
+        <span style="font-size:12px; color:#64748b; display:block;">담당자 성명</span>
+        <strong style="font-size:15px; color:#0f172a;">${user.name}</strong>
+      </div>
+      <div style="background:#f8fafc; padding:12px; border-radius:6px;">
+        <span style="font-size:12px; color:#64748b; display:block;">이메일 (아이디)</span>
+        <strong style="font-size:14px; color:#2563eb;">${user.email}</strong>
+      </div>
+      <div style="background:#f8fafc; padding:12px; border-radius:6px;">
+        <span style="font-size:12px; color:#64748b; display:block;">연락처</span>
+        <strong style="font-size:14px; color:#0f172a;">${user.tel || '010-0000-0000'}</strong>
+      </div>
+      <div style="background:#f8fafc; padding:12px; border-radius:6px;">
+        <span style="font-size:12px; color:#64748b; display:block;">가입 수단</span>
+        <strong style="font-size:14px; color:#0f172a;">${user.authProvider}</strong>
+      </div>
+      <div style="background:#f8fafc; padding:12px; border-radius:6px;">
+        <span style="font-size:12px; color:#64748b; display:block;">가입 일시</span>
+        <strong style="font-size:14px; color:#0f172a;">${user.joinDate}</strong>
+      </div>
+    </div>
+
+    <div style="background:#eff6ff; border:1px solid #bfdbfe; padding:14px; border-radius:6px; font-size:13px; color:#1e40af; margin-bottom:20px;">
+      <i class="fas fa-info-circle"></i> 본 파트너 회원은 풀무원 학교급식 단가 견적서 발급 및 전자세금계산서 연동 권한을 부여받은 회원입니다.
+    </div>
+
+    <div style="text-align: right; display:flex; justify-content:flex-end; gap:8px;">
+      <button class="btn-admin-action secondary" onclick="closeUserDetailModal()">닫기</button>
+    </div>
+  `;
+
+  modal.classList.add('open');
+}
+
+function closeUserDetailModal() {
+  const modal = document.getElementById('adminUserDetailModal');
+  if (modal) modal.classList.remove('open');
+}
+
+// 회원 삭제
+function deletePartnerUser(index) {
+  const users = getPartnerUsers();
+  const user = users[index];
+  if (!user) return;
+
+  if (confirm(`'${user.schoolName} ${user.name}' 회원을 정말 삭제하시겠습니까?`)) {
+    users.splice(index, 1);
+    savePartnerUsers(users);
+    renderUserTable();
+    if (typeof showToast === 'function') {
+      showToast(`'${user.name}' 회원이 삭제되었습니다.`);
+    }
+  }
+}
+
+// 회원 목록 엑셀(CSV) 다운로드
+function exportUsersToExcel() {
+  const users = getPartnerUsers();
+
+  if (users.length === 0) {
+    alert('내려받을 파트너 회원 데이터가 없습니다.');
+    return;
+  }
+
+  // UTF-8 BOM
+  let csvContent = '\uFEFF';
+  csvContent += '가입일시,회원구분,소속기관/학교명,담당자성명,이메일아이디,연락처,가입수단,회원상태\n';
+
+  users.forEach(u => {
+    const row = [
+      `"${u.joinDate}"`,
+      `"${u.userType}"`,
+      `"${u.schoolName}"`,
+      `"${u.name}"`,
+      `"${u.email}"`,
+      `"${u.tel || ''}"`,
+      `"${u.authProvider}"`,
+      `"${u.status}"`
+    ];
+    csvContent += row.join(',') + '\n';
+  });
+
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.setAttribute('href', url);
+  link.setAttribute('download', `pulmuone_partner_users_${new Date().toISOString().slice(0, 10)}.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+
+  if (typeof showToast === 'function') {
+    showToast('급식 파트너 회원 목록이 엑셀(CSV)로 다운로드되었습니다.');
+  }
 }
 

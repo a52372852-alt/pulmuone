@@ -479,6 +479,8 @@ function handleUserSignup(e) {
   };
 
   localStorage.setItem(USER_SESSION_KEY, JSON.stringify(userData));
+  saveUserToAdminList(userData, '일반 회원가입');
+
   closeSignupModal();
   updateAuthHeaderUI();
 
@@ -631,12 +633,39 @@ function handleSocialAuthSubmit(e) {
   };
 
   localStorage.setItem(USER_SESSION_KEY, JSON.stringify(userData));
+  saveUserToAdminList(userData, `${provider} 간편가입`);
+
   closeSocialAuthModal();
   updateAuthHeaderUI();
 
   alert(`🎉 [${provider}] 인증 및 가입/로그인 완료!\n\n${schoolName} ${name}님, ${provider} 정보 인증이 정상적으로 완료되었습니다.`);
   if (typeof showToast === 'function') {
     showToast(`'${name}'님 [${provider}] 간편 인증 및 로그인이 완료되었습니다.`);
+  }
+}
+
+function saveUserToAdminList(userData, providerName = '일반 회원가입') {
+  try {
+    const listKey = 'pulmuone_partner_users';
+    const usersStr = localStorage.getItem(listKey);
+    let users = usersStr ? JSON.parse(usersStr) : [];
+    
+    const exists = users.some(u => u.email === userData.email);
+    if (!exists) {
+      users.unshift({
+        joinDate: new Date().toLocaleString().slice(0, 16),
+        userType: userData.userType || '영양교사/조리사',
+        schoolName: userData.schoolName || '급식 파트너',
+        name: userData.name || '파트너 회원',
+        email: userData.email,
+        tel: userData.tel || '010-1234-5678',
+        authProvider: providerName,
+        status: '승인 완료'
+      });
+      localStorage.setItem(listKey, JSON.stringify(users));
+    }
+  } catch (err) {
+    console.error('saveUserToAdminList error:', err);
   }
 }
 

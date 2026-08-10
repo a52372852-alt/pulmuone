@@ -1422,6 +1422,214 @@
   font-weight: 700;
 }
 
+/* ==========================================================================
+   스마트 상세설명 (본사 캡처 이미지 + 텍스트) 블록 에디터 스타일
+   ========================================================================== */
+
+.detail-editor-container {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background-color: var(--bg-main);
+  padding: 16px;
+  margin-top: 6px;
+}
+
+.detail-editor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.detail-editor-tabs {
+  display: flex;
+  gap: 6px;
+  background-color: #e2e8f0;
+  padding: 4px;
+  border-radius: var(--radius-sm);
+}
+
+.detail-tab-btn {
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  border: none;
+  background: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: all var(--transition-fast);
+}
+
+.detail-tab-btn.active {
+  background-color: white;
+  color: var(--primary-color);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.detail-editor-toolbar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.btn-detail-add {
+  padding: 7px 13px;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background-color: white;
+  color: var(--secondary-color);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all var(--transition-fast);
+}
+
+.btn-detail-add:hover {
+  background-color: var(--primary-light);
+  color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.detail-paste-hint-box {
+  background: linear-gradient(135deg, #f0fdf4 0%, #e0f2fe 100%);
+  border: 1px dashed var(--primary-color);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  font-size: 12px;
+  color: #1e3a8a;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.detail-paste-hint-box strong {
+  color: var(--primary-color);
+  font-weight: 800;
+}
+
+.detail-block-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 80px;
+}
+
+.detail-block-item {
+  background-color: white;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+  transition: border-color var(--transition-fast);
+}
+
+.detail-block-item:hover {
+  border-color: var(--primary-color);
+}
+
+.detail-block-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.detail-block-type-badge {
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.detail-block-type-badge.image {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.detail-block-type-badge.text {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.detail-block-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.btn-block-action {
+  background: none;
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  padding: 3px 8px;
+  font-size: 11px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-block-action:hover {
+  background-color: #f1f5f9;
+  color: var(--secondary-color);
+}
+
+.btn-block-action.delete:hover {
+  background-color: #fef2f2;
+  color: #dc2626;
+  border-color: #fca5a5;
+}
+
+.detail-block-img-preview {
+  max-height: 180px;
+  max-width: 100%;
+  object-fit: contain;
+  border-radius: 4px;
+  border: 1px solid var(--border-light);
+  margin-bottom: 8px;
+  display: block;
+}
+
+/* 사용자 모달에서 본사 상세페이지 캡처 이미지 및 텍스트 렌더링 스타일 */
+.product-detail-rendered-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 10px;
+}
+
+.product-detail-rendered-content img {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  display: block;
+}
+
+.product-detail-rendered-text {
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--text-dark);
+  background-color: #f8fafc;
+  padding: 14px 18px;
+  border-radius: var(--radius-sm);
+  border-left: 4px solid var(--primary-color);
+  white-space: pre-wrap;
+}
+
+
 
 
 

@@ -757,9 +757,7 @@ function openProductModal(productId) {
     <!-- 영양성분 정보 및 상세설명 -->
     <div class="modal-section">
       <h3 class="modal-section-title">제품 상세설명</h3>
-      <p style="font-size: 14px; color: var(--text-muted); line-height: 1.8; margin-bottom: 24px;">
-        ${product.description}
-      </p>
+      ${renderProductDetailContent(product)}
     </div>
 
     <div class="modal-section">
@@ -817,3 +815,33 @@ function openProductModal(productId) {
 function closeProductModal() {
   document.getElementById('productDetailModal').classList.remove('open');
 }
+
+// 본사 상세페이지 캡처 이미지 및 텍스트 블록 렌더링 헬퍼 함수
+function renderProductDetailContent(product) {
+  if (product.detailBlocks && Array.isArray(product.detailBlocks) && product.detailBlocks.length > 0) {
+    let html = '<div class="product-detail-rendered-content" style="margin-bottom: 24px;">';
+    product.detailBlocks.forEach(block => {
+      if (block.type === 'image' && block.src) {
+        html += `
+          <div style="margin-bottom: 8px;">
+            <img src="${block.src}" alt="${block.caption || product.name}" style="width:100%; max-width:100%; border-radius:var(--radius-sm); display:block;">
+            ${block.caption ? `<div style="font-size:12px; color:var(--text-muted); text-align:center; margin-top:4px;">${block.caption}</div>` : ''}
+          </div>
+        `;
+      } else if (block.type === 'text' && block.text) {
+        html += `<div class="product-detail-rendered-text">${block.text.replace(/\n/g, '<br>')}</div>`;
+      }
+    });
+    html += '</div>';
+    return html;
+  }
+
+  // 기존 단일 텍스트 description 호환 처리
+  const descText = product.description ? product.description.replace(/\n/g, '<br>') : '학교 영양사 및 행정실 참고용 상세설명이 준비 중입니다.';
+  return `
+    <p style="font-size: 14px; color: var(--text-muted); line-height: 1.8; margin-bottom: 24px;">
+      ${descText}
+    </p>
+  `;
+}
+

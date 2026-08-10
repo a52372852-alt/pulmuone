@@ -296,6 +296,10 @@ function bindAdminEvents() {
       updateImagePreview(e.target.value);
     });
   }
+
+  // 캡처 이미지 클립보드 붙여넣기 (Ctrl+V) 글로벌 리스너
+  document.removeEventListener('paste', handleGlobalPasteEvent);
+  document.addEventListener('paste', handleGlobalPasteEvent);
 }
 
 // 대시보드 상품 카탈로그 테이블 렌더링
@@ -714,6 +718,236 @@ function updateImagePreview(url) {
   }
 }
 
+// -------------------------------------------------------------
+// [컴초보 친화형 스마트 상세설명 (본사 캡처 이미지 + 텍스트) 에디터 로직]
+// -------------------------------------------------------------
+
+let currentDetailBlocks = [];
+
+// 탭 전환 (편집 / 실시간 미리보기)
+function switchDetailEditorTab(mode) {
+  const editBtn = document.getElementById('detailTabEditBtn');
+  const previewBtn = document.getElementById('detailTabPreviewBtn');
+  const editSec = document.getElementById('detailEditModeSection');
+  const previewSec = document.getElementById('detailPreviewSection');
+
+  if (!editBtn || !previewBtn || !editSec || !previewSec) return;
+
+  if (mode === 'edit') {
+    editBtn.classList.add('active');
+    previewBtn.classList.remove('active');
+    editSec.style.display = 'block';
+    previewSec.style.display = 'none';
+  } else {
+    previewBtn.classList.add('active');
+    editBtn.classList.remove('active');
+    editSec.style.display = 'none';
+    previewSec.style.display = 'block';
+    renderDetailBlocksPreview();
+  }
+}
+
+// 블록 목록 에디터 UI 렌더링
+function renderDetailBlocksEditor() {
+  const listEl = document.getElementById('detailBlockList');
+  if (!listEl) return;
+
+  if (currentDetailBlocks.length === 0) {
+    listEl.innerHTML = `
+      <div style="text-align: center; padding: 24px; color: var(--text-light); border: 2px dashed #cbd5e1; border-radius: var(--radius-sm); background: white;">
+        <i class="fas fa-layer-group" style="font-size: 28px; margin-bottom: 8px; color: #94a3b8; display: block;"></i>
+        <p style="font-size: 13px; font-weight: 700; color: #64748b; margin-bottom: 4px;">아직 등록된 상세설명 블록이 없습니다.</p>
+        <span style="font-size: 12px; color: #94a3b8;">상단의 [📸 캡처 이미지 첨부], [✏️ 텍스트 설명 추가] 버튼을 누르거나,<br>화면 캡처 후 <strong>Ctrl + V</strong>를 눌러보세요.</span>
+      </div>
+    `;
+    return;
+  }
+
+  let html = '';
+  currentDetailBlocks.forEach((block, idx) => {
+    const isFirst = (idx === 0);
+    const isLast = (idx === currentDetailBlocks.length - 1);
+
+    if (block.type === 'image') {
+      html += `
+        <div class="detail-block-item">
+          <div class="detail-block-header">
+            <span class="detail-block-type-badge image">
+              <i class="fas fa-image"></i> 본사 캡처 이미지 블록 #${idx + 1}
+            </span>
+            <div class="detail-block-actions">
+              <button type="button" class="btn-block-action" onclick="moveDetailBlock(${idx}, -1)" ${isFirst ? 'disabled style="opacity:0.3;"' : ''} title="위로 이동">▲ 위로</button>
+              <button type="button" class="btn-block-action" onclick="moveDetailBlock(${idx}, 1)" ${isLast ? 'disabled style="opacity:0.3;"' : ''} title="아래로 이동">▼ 아래로</button>
+              <button type="button" class="btn-block-action delete" onclick="removeDetailBlock(${idx})" title="삭제">🗑️ 삭제</button>
+            </div>
+          </div>
+          <img src="${block.src}" alt="상세 캡처 이미지" class="detail-block-img-preview">
+          <input type="text" class="input-field" placeholder="이미지 설명/캡션 입력 (선택사항)" value="${block.caption || ''}" onchange="updateBlockCaption(${idx}, this.value)" style="font-size: 12px; padding: 6px 10px;">
+        </div>
+      `;
+    } else if (block.type === 'text') {
+      html += `
+        <div class="detail-block-item">
+          <div class="detail-block-header">
+            <span class="detail-block-type-badge text">
+              <i class="fas fa-font"></i> 텍스트 설명 블록 #${idx + 1}
+            </span>
+            <div class="detail-block-actions">
+              <button type="button" class="btn-block-action" onclick="moveDetailBlock(${idx}, -1)" ${isFirst ? 'disabled style="opacity:0.3;"' : ''} title="위로 이동">▲ 위로</button>
+              <button type="button" class="btn-block-action" onclick="moveDetailBlock(${idx}, 1)" ${isLast ? 'disabled style="opacity:0.3;"' : ''} title="아래로 이동">▼ 아래로</button>
+              <button type="button" class="btn-block-action delete" onclick="removeDetailBlock(${idx})" title="삭제">🗑️ 삭제</button>
+            </div>
+          </div>
+          <textarea class="textarea-field" placeholder="학교 영양사 선생님 및 조리사님이 참고할 제품의 특장점, 조리법, 행정사항 등을 자유롭게 적어주세요." onchange="updateBlockText(${idx}, this.value)" style="min-height: 80px; font-size: 13px; line-height: 1.6;">${block.text || ''}</textarea>
+        </div>
+      `;
+    }
+  });
+
+  listEl.innerHTML = html;
+}
+
+// 이미지 블록 추가
+function addDetailImageBlock(src, caption = '') {
+  if (!src) return;
+  currentDetailBlocks.push({ type: 'image', src, caption });
+  renderDetailBlocksEditor();
+}
+
+// 텍스트 블록 추가
+function addDetailTextBlock(text = '') {
+  currentDetailBlocks.push({ type: 'text', text });
+  renderDetailBlocksEditor();
+}
+
+// 이미지 URL 인라인 입력 박스 토글
+function toggleDetailUrlInputBox() {
+  const box = document.getElementById('detailUrlInputBox');
+  const field = document.getElementById('detailUrlInputField');
+  if (!box) return;
+
+  if (box.style.display === 'none' || !box.style.display) {
+    box.style.display = 'block';
+    if (field) field.focus();
+  } else {
+    box.style.display = 'none';
+    if (field) field.value = '';
+  }
+}
+
+// 인라인 입력박스로부터 이미지 URL 추가
+function submitDetailImageUrl() {
+  const field = document.getElementById('detailUrlInputField');
+  if (!field) return;
+
+  const url = field.value.trim();
+  if (url) {
+    addDetailImageBlock(url);
+    field.value = '';
+    toggleDetailUrlInputBox();
+  } else {
+    alert('이미지 주소(URL)를 입력해 주세요.');
+  }
+}
+
+// 다중 파일 선택으로 캡처 이미지 등록
+function handleDetailImageFiles(event) {
+  const files = event.target.files;
+  if (!files || files.length === 0) return;
+
+  Array.from(files).forEach(file => {
+    if (!file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      addDetailImageBlock(e.target.result);
+    };
+    reader.readAsDataURL(file);
+  });
+
+  event.target.value = '';
+}
+
+// 실시간 캡션/텍스트 동기화
+function updateBlockCaption(idx, val) {
+  if (currentDetailBlocks[idx]) currentDetailBlocks[idx].caption = val;
+}
+function updateBlockText(idx, val) {
+  if (currentDetailBlocks[idx]) currentDetailBlocks[idx].text = val;
+}
+
+// 블록 순서 이동
+function moveDetailBlock(idx, direction) {
+  const targetIdx = idx + direction;
+  if (targetIdx < 0 || targetIdx >= currentDetailBlocks.length) return;
+  const temp = currentDetailBlocks[idx];
+  currentDetailBlocks[idx] = currentDetailBlocks[targetIdx];
+  currentDetailBlocks[targetIdx] = temp;
+  renderDetailBlocksEditor();
+}
+
+// 블록 삭제
+function removeDetailBlock(idx) {
+  currentDetailBlocks.splice(idx, 1);
+  renderDetailBlocksEditor();
+}
+
+// 미리보기 HTML 렌더링
+function renderDetailBlocksPreview() {
+  const container = document.getElementById('detailPreviewContent');
+  if (!container) return;
+
+  if (currentDetailBlocks.length === 0) {
+    container.innerHTML = `<div style="text-align:center; color:var(--text-light); padding:20px;">등록된 상세설명 블록이 없습니다.</div>`;
+    return;
+  }
+
+  let html = '';
+  currentDetailBlocks.forEach(block => {
+    if (block.type === 'image' && block.src) {
+      html += `<img src="${block.src}" alt="${block.caption || '상세설명 이미지'}">`;
+      if (block.caption) {
+        html += `<div style="font-size:12px; color:var(--text-muted); text-align:center; margin-top:-10px; margin-bottom:10px;">${block.caption}</div>`;
+      }
+    } else if (block.type === 'text' && block.text) {
+      html += `<div class="product-detail-rendered-text">${block.text.replace(/\n/g, '<br>')}</div>`;
+    }
+  });
+
+  container.innerHTML = html;
+}
+
+// 클립보드 캡처 이미지 붙여넣기(Ctrl+V) 리스너
+function handleGlobalPasteEvent(e) {
+  const modal = document.getElementById('productFormModal');
+  if (!modal || !modal.classList.contains('open')) return;
+
+  const clipboardData = e.clipboardData || window.clipboardData;
+  if (!clipboardData || !clipboardData.items) return;
+
+  let imageFound = false;
+  for (let i = 0; i < clipboardData.items.length; i++) {
+    const item = clipboardData.items[i];
+    if (item.type.indexOf('image') !== -1) {
+      const blob = item.getAsFile();
+      if (blob) {
+        imageFound = true;
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          addDetailImageBlock(evt.target.result);
+          if (typeof showToast === 'function') {
+            showToast('📋 캡처 이미지가 상세설명에 붙여넣기 되었습니다!');
+          }
+        };
+        reader.readAsDataURL(blob);
+      }
+    }
+  }
+
+  if (imageFound) {
+    e.preventDefault();
+  }
+}
+
 // 제품 추가/수정 모달 열기
 function openProductFormModal(productId = null) {
   document.getElementById('editProductId').value = productId || '';
@@ -721,6 +955,9 @@ function openProductFormModal(productId = null) {
   document.getElementById('formProdImageUrl').value = '';
   document.getElementById('formImageFile').value = '';
   updateImagePreview('');
+
+  switchDetailEditorTab('edit');
+  currentDetailBlocks = [];
 
   const title = document.getElementById('formModalTitle');
   const modal = document.getElementById('productFormModal');
@@ -741,6 +978,13 @@ function openProductFormModal(productId = null) {
       document.getElementById('formProdImageUrl').value = product.image;
       updateImagePreview(product.image);
       document.getElementById('formProdDesc').value = product.description || '';
+
+      // 상세설명 블록 데이터 로드 (없을 시 기존 description을 텍스트 블록으로 호환 변환)
+      if (product.detailBlocks && Array.isArray(product.detailBlocks) && product.detailBlocks.length > 0) {
+        currentDetailBlocks = JSON.parse(JSON.stringify(product.detailBlocks));
+      } else if (product.description) {
+        currentDetailBlocks = [{ type: 'text', text: product.description }];
+      }
 
       if (product.nutrition) {
         document.getElementById('nutServing').value = product.nutrition.servingSize || '100g당';
@@ -763,6 +1007,7 @@ function openProductFormModal(productId = null) {
     renderFormAllergyCheckboxes([]);
   }
 
+  renderDetailBlocksEditor();
   modal.classList.add('open');
 }
 
@@ -792,7 +1037,14 @@ function handleProductFormSubmit(event) {
     image = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=400';
   }
 
-  const description = document.getElementById('formProdDesc').value.trim();
+  // 대표 텍스트 description 및 detailBlocks 데이터 정리
+  let compositeDescArr = [];
+  currentDetailBlocks.forEach(b => {
+    if (b.type === 'text' && b.text) compositeDescArr.push(b.text);
+    else if (b.type === 'image' && b.caption) compositeDescArr.push(`[이미지] ${b.caption}`);
+  });
+  const description = compositeDescArr.join('\n\n') || '상세설명 참조';
+
   const badgeBoxes = document.querySelectorAll('input[name="badges"]:checked');
   const badges = Array.from(badgeBoxes).map(cb => cb.value);
   const allergyBoxes = document.querySelectorAll('input[name="formAllergens"]:checked');
@@ -809,7 +1061,9 @@ function handleProductFormSubmit(event) {
   const currentProducts = getProducts();
 
   const productData = {
-    name, brand, spec, price, category, image, allergens, badges, nutrition, description
+    name, brand, spec, price, category, image, allergens, badges, nutrition, 
+    description,
+    detailBlocks: currentDetailBlocks
   };
   if (originalPrice) {
     productData.originalPrice = originalPrice;

@@ -921,10 +921,88 @@
               </div>
             </div>
 
-            <!-- 상세 설명 -->
+            <!-- 상세 설명 (컴초보 친화형 스마트 캡처 이미지 + 텍스트 블록 에디터) -->
             <div class="form-control-group admin-form-col-full no-margin">
-              <label class="form-label">제품 상세설명</label>
-              <textarea class="textarea-field" id="formProdDesc" placeholder="학교 영양사 및 행정실 담당자가 참고할 만한 제품의 특징, 조리법 상의 이점 등을 자세히 입력해 주세요."></textarea>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <label class="form-label" style="margin-bottom: 0;">
+                  제품 상세설명 
+                  <span style="font-size: 11px; font-weight: 400; color: var(--primary-color); margin-left: 6px;">
+                    <i class="fas fa-magic"></i> 본사 상세페이지 캡처 이미지 및 텍스트 자유 배치
+                  </span>
+                </label>
+
+                <!-- 에디터 / 미리보기 탭 -->
+                <div class="detail-editor-tabs">
+                  <button type="button" class="detail-tab-btn active" id="detailTabEditBtn" onclick="switchDetailEditorTab('edit')">
+                    <i class="fas fa-edit"></i> 블록 편집
+                  </button>
+                  <button type="button" class="detail-tab-btn" id="detailTabPreviewBtn" onclick="switchDetailEditorTab('preview')">
+                    <i class="fas fa-eye"></i> 실시간 미리보기
+                  </button>
+                </div>
+              </div>
+
+              <!-- 스마트 에디터 박스 -->
+              <div class="detail-editor-container" id="detailEditorWrapper">
+                <!-- 1. 블록 편집 모드 -->
+                <div id="detailEditModeSection">
+                  <!-- 툴바 및 조작 버튼 -->
+                  <div class="detail-editor-header">
+                    <div class="detail-editor-toolbar">
+                      <button type="button" class="btn-detail-add" onclick="document.getElementById('detailImgFileInput').click()">
+                        <i class="fas fa-image" style="color:#2563eb;"></i> 📸 캡처 이미지 첨부
+                      </button>
+                      <button type="button" class="btn-detail-add" onclick="addDetailTextBlock()">
+                        <i class="fas fa-font" style="color:#d97706;"></i> ✏️ 텍스트 설명 추가
+                      </button>
+                      <button type="button" class="btn-detail-add" onclick="toggleDetailUrlInputBox()">
+                        <i class="fas fa-link" style="color:#059669;"></i> 🔗 이미지 URL 입력
+                      </button>
+                      <input type="file" id="detailImgFileInput" accept="image/*" multiple style="display: none;" onchange="handleDetailImageFiles(event)">
+                    </div>
+                  </div>
+
+                  <!-- 이미지 URL 인라인 입력 박스 (기본 숨김) -->
+                  <div id="detailUrlInputBox" style="display: none; background: white; border: 1px solid var(--border-color); padding: 10px 14px; border-radius: var(--radius-sm); margin-bottom: 12px;">
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                      <input type="text" class="input-field" id="detailUrlInputField" placeholder="본사 상세페이지 이미지 주소(URL)를 입력하세요 (http://...)" style="font-size: 12px; padding: 6px 10px; flex-grow: 1;">
+                      <button type="button" class="btn-detail-add" onclick="submitDetailImageUrl()" style="background-color: var(--primary-color); color: white; border-color: var(--primary-color);">추가</button>
+                      <button type="button" class="btn-block-action" onclick="toggleDetailUrlInputBox()" style="padding: 6px 10px;">취소</button>
+                    </div>
+                  </div>
+
+                  <!-- 캡처 붙여넣기 꿀팁 바 -->
+                  <div class="detail-paste-hint-box" id="detailPasteHintBox" tabindex="0">
+                    <div>
+                      <i class="fas fa-paste" style="font-size: 16px; margin-right: 6px; color: var(--primary-color);"></i>
+                      <strong>초간단 캡처 등록:</strong> 본사 상세페이지를 화면 캡처(<code>Win + Shift + S</code>)한 후 
+                      <span style="background: white; padding: 2px 6px; border-radius: 4px; font-weight: 800; border: 1px solid #cbd5e1; color:#0f172a;">Ctrl + V</span> 
+                      를 누르면 이미지가 여기에 바로 들어갑니다!
+                    </div>
+                    <span style="font-size: 11px; opacity: 0.8;">(클릭하여 선택 후 붙여넣기)</span>
+                  </div>
+
+                  <!-- 블록 목록 컨테이너 -->
+                  <div class="detail-block-list" id="detailBlockList">
+                    <!-- 스크립트로 블록들 렌더링 -->
+                  </div>
+                </div>
+
+                <!-- 2. 미리보기 모드 (고객에게 노출될 최종 화면) -->
+                <div id="detailPreviewSection" style="display: none;">
+                  <div style="background-color: white; padding: 20px; border-radius: var(--radius-md); border: 1px solid var(--border-light);">
+                    <div style="font-size: 12px; font-weight: 700; color: var(--primary-color); margin-bottom: 12px; padding-bottom: 6px; border-bottom: 2px solid var(--primary-light);">
+                      <i class="fas fa-mobile-screen"></i> [미리보기] 영양사 교사에게 노출되는 상세페이지 화면입니다
+                    </div>
+                    <div class="product-detail-rendered-content" id="detailPreviewContent">
+                      <!-- 동적 주입 -->
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 숨겨진 호환용 textarea -->
+              <textarea class="textarea-field" id="formProdDesc" style="display: none;"></textarea>
             </div>
           </div>
 

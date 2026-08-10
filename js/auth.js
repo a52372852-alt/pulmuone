@@ -437,6 +437,15 @@ function handleUserLogin(e) {
   }
 }
 
+function handleUserLogout(e) {
+  if (e) e.preventDefault();
+  localStorage.removeItem(USER_SESSION_KEY);
+  updateAuthHeaderUI();
+  if (typeof showToast === 'function') {
+    showToast('성공적으로 로그아웃되었습니다.');
+  }
+}
+
 function openSignupModal(e) {
   if (e) e.preventDefault();
   const modal = document.getElementById('userSignupModal');

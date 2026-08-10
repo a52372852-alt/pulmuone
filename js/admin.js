@@ -118,11 +118,16 @@ function renderAdminProducts() {
   let html = '';
   currentProducts.forEach(product => {
     // 카테고리 한글 치환
-    let catKor = '';
-    if (product.category === 'tofu-vegetables') catKor = '두부·채소류';
-    if (product.category === 'earth-diet') catKor = '풀무원 지구식단';
-    if (product.category === 'processed') catKor = '급식가공식품';
-    if (product.category === 'snacks') catKor = '영양간식·음료';
+    let catKor = '기타';
+    if (product.category === 'earth-diet') catKor = '지속가능먹거리';
+    else if (product.category === 'tofu-vegetables') catKor = '두부·콩나물·달걀';
+    else if (product.category === 'vegetables') catKor = '과일·채소·쌀';
+    else if (product.category === 'processed') catKor = '정육·수산·가공';
+    else if (product.category === 'dumpling-noodle') catKor = '만두·피자·면요리';
+    else if (product.category === 'soup-side') catKor = '국·탕·반찬·양념';
+    else if (product.category === 'snacks') catKor = '과자·간식·음료';
+    else if (product.category === 'health') catKor = '건강식품·녹즙';
+
 
     html += `
       <tr>

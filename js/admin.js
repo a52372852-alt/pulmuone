@@ -218,14 +218,6 @@ function checkAdminAuth() {
 }
 
 
-function fillAdminDemoPassword() {
-  const pwdInput = document.getElementById('adminPassword');
-  if (pwdInput) {
-    pwdInput.value = 'admin123';
-    handleAdminLogin();
-  }
-}
-
 // 로그인 액션
 function handleAdminLogin(event) {
   if (event) event.preventDefault();

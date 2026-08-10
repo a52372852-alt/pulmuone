@@ -215,22 +215,34 @@ function checkAdminAuth() {
 }
 
 
+function fillAdminDemoPassword() {
+  const pwdInput = document.getElementById('adminPassword');
+  if (pwdInput) {
+    pwdInput.value = 'admin123';
+    handleAdminLogin();
+  }
+}
+
 // 로그인 액션
 function handleAdminLogin(event) {
-  event.preventDefault();
+  if (event) event.preventDefault();
   const passwordInput = document.getElementById('adminPassword');
   const errorMsg = document.getElementById('loginErrorMsg');
 
-  if (passwordInput.value === 'admin123') {
+  if (!passwordInput) return;
+
+  const enteredValue = passwordInput.value.trim();
+
+  if (enteredValue === 'admin123') {
     localStorage.setItem(ADMIN_SESSION_KEY, 'true');
     passwordInput.value = '';
-    errorMsg.style.display = 'none';
+    if (errorMsg) errorMsg.style.display = 'none';
     checkAdminAuth();
     if (typeof showToast === 'function') {
       showToast('관리자 세션이 시작되었습니다.');
     }
   } else {
-    errorMsg.style.display = 'block';
+    if (errorMsg) errorMsg.style.display = 'block';
   }
 }
 
@@ -245,6 +257,11 @@ function handleAdminLogout() {
 
 // 이벤트 리스너 바인딩
 function bindAdminEvents() {
+  const loginForm = document.getElementById('loginForm');
+  if (loginForm) {
+    loginForm.addEventListener('submit', handleAdminLogin);
+  }
+
   // 로그아웃 버튼
   const logoutBtn = document.getElementById('btnAdminLogout');
   if (logoutBtn) {

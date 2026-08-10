@@ -263,24 +263,32 @@
 }
 
 .btn-continue-shopping {
-  background-color: #f1f5f9;
-  border: 1px solid #cbd5e1;
-  border-radius: var(--radius-sm);
-  padding: 6px 12px;
+  background: linear-gradient(135deg, #70b62c 0%, #569920 100%);
+  border: none;
+  border-radius: 20px;
+  padding: 8px 16px;
   font-size: 13px;
-  font-weight: 700;
-  color: var(--secondary-color);
+  font-weight: 800;
+  color: #ffffff;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  box-shadow: 0 4px 12px rgba(112, 182, 44, 0.35);
   transition: all var(--transition-fast);
+  letter-spacing: -0.3px;
 }
 
 .btn-continue-shopping:hover {
-  background-color: var(--primary-light);
-  color: var(--primary-color);
-  border-color: var(--primary-light);
+  background: linear-gradient(135deg, #5b9e20 0%, #487e19 100%);
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(112, 182, 44, 0.45);
+}
+
+.btn-continue-shopping:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(112, 182, 44, 0.3);
 }
 
 .drawer-content {

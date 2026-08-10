@@ -257,9 +257,9 @@ function initCartDrawer() {
             <h3>
               <i class="fas fa-file-invoice" style="color: var(--primary-color);"></i> 견적 가방
             </h3>
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <button class="btn-continue-shopping" id="continueShoppingBtn" title="견적 가방을 닫고 계속 쇼핑합니다">
-                <i class="fas fa-arrow-left" style="font-size: 11px;"></i> 계속 쇼핑하기
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <button class="btn-continue-shopping" id="continueShoppingBtn" title="견적 가방 팝업을 닫고 식자재 쇼핑을 계속합니다">
+                <i class="fas fa-shopping-bag"></i> 계속 쇼핑하기
               </button>
               <button class="btn-close-drawer" id="closeCartBtn" title="닫기">
                 <i class="fas fa-times"></i>

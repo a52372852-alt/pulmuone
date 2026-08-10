@@ -147,6 +147,41 @@ function initAuthModals() {
       </div>
     </div>
 
+    <!-- 소셜 / 교육청 SSO 전용 인증 모달 -->
+    <div class="modal-overlay" id="socialAuthModal">
+      <div class="modal-window animate-fade-in" style="max-width: 460px; overflow: hidden;">
+        <button class="modal-close" onclick="closeSocialAuthModal()" style="z-index:10; color:#888;"><i class="fas fa-times"></i></button>
+        
+        <div id="socialModalHeader" class="social-modal-header kakao">
+          <!-- 동적 주입 -->
+        </div>
+
+        <div class="modal-body" style="padding: 0 24px 24px 24px;">
+          <form id="socialAuthForm" onsubmit="handleSocialAuthSubmit(event)">
+            <input type="hidden" id="socialProvider">
+            
+            <div id="socialFormFields">
+              <!-- 동적 입력 필드 주입 -->
+            </div>
+
+            <div class="social-consent-box">
+              <label>
+                <input type="checkbox" required checked> [필수] 개인정보 및 프로필 제3자 제공 동의
+              </label>
+              <label>
+                <input type="checkbox" required checked> [필수] 풀무원 바른급식 파트너 계정 연동 동의
+              </label>
+              <div style="font-size:11px; color:#64748b; margin-top:4px;">* 입력하신 계정 정보는 안전하게 암호화되어 급식 단가 및 견적 서비스 이용 목적으로만 사용됩니다.</div>
+            </div>
+
+            <button type="submit" id="socialAuthSubmitBtn" class="btn-submit-quote-page" style="padding: 12px; font-size: 15px; width: 100%;">
+              인증 동의 및 로그인 완료
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
     <!-- 고객센터 모달 -->
     <div class="modal-overlay" id="userCsModal">
       <div class="modal-window animate-fade-in" style="max-width: 680px;">
@@ -376,96 +411,154 @@ function handleUserLogin(e) {
 }
 
 function handleSocialLogin(provider) {
-  const userData = {
-    email: `partner_${provider.toLowerCase()}@pulmuonemeal.co.kr`,
-    name: `${provider} 인증회원`,
-    schoolName: '학교급식 파트너',
-    userType: '영양교사/조리사',
-    loginDate: new Date().toLocaleString()
-  };
-
-  localStorage.setItem(USER_SESSION_KEY, JSON.stringify(userData));
   closeLoginModal();
-  updateAuthHeaderUI();
-
-  if (typeof showToast === 'function') {
-    showToast(`${provider} 간편 인증으로 로그인되었습니다.`);
-  }
-}
-
-function handleUserLogout(e) {
-  if (e) e.preventDefault();
-  localStorage.removeItem(USER_SESSION_KEY);
-  updateAuthHeaderUI();
-  if (typeof showToast === 'function') {
-    showToast('로그아웃되었습니다.');
-  }
-}
-
-function switchModalToSignup(e) {
-  if (e) e.preventDefault();
-  closeLoginModal();
-  openSignupModal();
-}
-
-function switchModalToLogin(e) {
-  if (e) e.preventDefault();
-  closeSignupModal();
-  openLoginModal();
-}
-
-// -------------------------------------------------------------
-// 4. 회원가입 모달 제어
-// -------------------------------------------------------------
-function openSignupModal(e) {
-  if (e) e.preventDefault();
-  const modal = document.getElementById('userSignupModal');
-  if (modal) modal.classList.add('open');
-}
-
-function closeSignupModal() {
-  const modal = document.getElementById('userSignupModal');
-  if (modal) modal.classList.remove('open');
-}
-
-function handleUserSignup(e) {
-  e.preventDefault();
-  const userType = document.getElementById('signupUserType').value;
-  const schoolName = document.getElementById('signupSchoolName').value.trim();
-  const name = document.getElementById('signupName').value.trim();
-  const email = document.getElementById('signupEmail').value.trim();
-
-  const userData = {
-    email, name, schoolName, userType,
-    loginDate: new Date().toLocaleString()
-  };
-
-  localStorage.setItem(USER_SESSION_KEY, JSON.stringify(userData));
-  closeSignupModal();
-  updateAuthHeaderUI();
-
-  alert(`🎉 회원가입 완료!\n\n${schoolName} ${name}님, 풀무원 바른급식 파트너 회원가입이 완료되었습니다.`);
-  if (typeof showToast === 'function') {
-    showToast(`'${name}'님 회원가입 및 자동 로그인이 완료되었습니다.`);
-  }
+  openSocialAuthModal(provider);
 }
 
 function handleSocialSignup(provider) {
+  closeSignupModal();
+  openSocialAuthModal(provider);
+}
+
+// -------------------------------------------------------------
+// [소셜 / 교육청 SSO 전용 인증 모달 팝업 제어]
+// -------------------------------------------------------------
+function openSocialAuthModal(provider) {
+  const modal = document.getElementById('socialAuthModal');
+  const header = document.getElementById('socialModalHeader');
+  const fields = document.getElementById('socialFormFields');
+  const providerInput = document.getElementById('socialProvider');
+  const submitBtn = document.getElementById('socialAuthSubmitBtn');
+
+  if (!modal || !header || !fields) return;
+
+  providerInput.value = provider;
+
+  if (provider.includes('카카오')) {
+    header.className = 'social-modal-header kakao';
+    header.innerHTML = `
+      <i class="fas fa-comment" style="font-size:36px; margin-bottom:8px;"></i>
+      <h4 style="font-size:20px; font-weight:800; margin:0;">카카오 계정 간편 가입 / 로그인</h4>
+      <p style="font-size:12px; margin-top:4px; opacity:0.85;">카카오 계정 프로필로 빠르게 급식 파트너 서비스를 이용하세요.</p>
+    `;
+    fields.innerHTML = `
+      <div class="form-control-group">
+        <label class="form-label">카카오 계정 (이메일 아이디) <span class="required">*</span></label>
+        <input type="email" class="input-field" id="socialEmail" placeholder="example@kakao.com" value="teacher_kakao@kakao.com" required>
+      </div>
+      <div class="admin-form-grid" style="grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+        <div class="form-control-group">
+          <label class="form-label">카카오 닉네임 / 성명 <span class="required">*</span></label>
+          <input type="text" class="input-field" id="socialName" placeholder="예: 김영양" value="김영양 (카카오)" required>
+        </div>
+        <div class="form-control-group">
+          <label class="form-label">소속 기관/학교명 <span class="required">*</span></label>
+          <input type="text" class="input-field" id="socialSchool" placeholder="예: 안심초등학교" value="안심초등학교" required>
+        </div>
+      </div>
+    `;
+    submitBtn.style.backgroundColor = '#FEE500';
+    submitBtn.style.color = '#000000';
+    submitBtn.style.borderColor = '#FEE500';
+    submitBtn.textContent = '카카오 계정으로 가입/로그인 완료';
+  } else if (provider.includes('네이버')) {
+    header.className = 'social-modal-header naver';
+    header.innerHTML = `
+      <i class="fas fa-bold" style="font-size:36px; margin-bottom:8px;"></i>
+      <h4 style="font-size:20px; font-weight:800; margin:0;">네이버 아이디 간편 가입 / 로그인</h4>
+      <p style="font-size:12px; margin-top:4px; opacity:0.9;">네이버 아이디 인증으로 안전하게 서비스를 연동합니다.</p>
+    `;
+    fields.innerHTML = `
+      <div class="form-control-group">
+        <label class="form-label">네이버 아이디 (이메일) <span class="required">*</span></label>
+        <input type="email" class="input-field" id="socialEmail" placeholder="id@naver.com" value="teacher_naver@naver.com" required>
+      </div>
+      <div class="admin-form-grid" style="grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+        <div class="form-control-group">
+          <label class="form-label">이름 <span class="required">*</span></label>
+          <input type="text" class="input-field" id="socialName" placeholder="예: 박급식" value="박급식 (네이버)" required>
+        </div>
+        <div class="form-control-group">
+          <label class="form-label">소속 기관/학교명 <span class="required">*</span></label>
+          <input type="text" class="input-field" id="socialSchool" placeholder="예: 서울중학교" value="서울중학교" required>
+        </div>
+      </div>
+    `;
+    submitBtn.style.backgroundColor = '#03C75A';
+    submitBtn.style.color = '#ffffff';
+    submitBtn.style.borderColor = '#03C75A';
+    submitBtn.textContent = '네이버 아이디로 가입/로그인 완료';
+  } else {
+    // 전국 교육청 SSO
+    header.className = 'social-modal-header sso';
+    header.innerHTML = `
+      <i class="fas fa-university" style="font-size:36px; margin-bottom:8px; color:var(--primary-color);"></i>
+      <h4 style="font-size:20px; font-weight:800; margin:0;">전국 교육청 통합 SSO 인증</h4>
+      <p style="font-size:12px; margin-top:4px; opacity:0.85;">시·도 교육청 교직원 통합 인증으로 급식 서비스를 이용하세요.</p>
+    `;
+    fields.innerHTML = `
+      <div class="form-control-group">
+        <label class="form-label">관할 교육청 선택 <span class="required">*</span></label>
+        <select class="select-field" id="socialSsoOffice" required>
+          <option value="서울특별시교육청">서울특별시교육청</option>
+          <option value="경기도교육청">경기도교육청</option>
+          <option value="인천광역시교육청">인천광역시교육청</option>
+          <option value="부산광역시교육청">부산광역시교육청</option>
+          <option value="기타 시·도 교육청">기타 시·도 교육청</option>
+        </select>
+      </div>
+      <div class="form-control-group">
+        <label class="form-label">교직원 공공 이메일 (SSO 아이디) <span class="required">*</span></label>
+        <input type="email" class="input-field" id="socialEmail" placeholder="teacher@sen.go.kr" value="teacher@sen.go.kr" required>
+      </div>
+      <div class="admin-form-grid" style="grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+        <div class="form-control-group">
+          <label class="form-label">교직원 성명 <span class="required">*</span></label>
+          <input type="text" class="input-field" id="socialName" placeholder="예: 김영양 교사" value="김영양 교사" required>
+        </div>
+        <div class="form-control-group">
+          <label class="form-label">소속 학교명 <span class="required">*</span></label>
+          <input type="text" class="input-field" id="socialSchool" placeholder="예: 안심초등학교" value="안심초등학교" required>
+        </div>
+      </div>
+    `;
+    submitBtn.style.backgroundColor = 'var(--primary-color)';
+    submitBtn.style.color = '#ffffff';
+    submitBtn.style.borderColor = 'var(--primary-color)';
+    submitBtn.textContent = '교육청 SSO 인증 완료 및 로그인';
+  }
+
+  modal.classList.add('open');
+}
+
+function closeSocialAuthModal() {
+  const modal = document.getElementById('socialAuthModal');
+  if (modal) modal.classList.remove('open');
+}
+
+function handleSocialAuthSubmit(e) {
+  e.preventDefault();
+  const provider = document.getElementById('socialProvider').value;
+  const email = document.getElementById('socialEmail').value.trim();
+  const name = document.getElementById('socialName').value.trim();
+  const schoolName = document.getElementById('socialSchool').value.trim();
+
   const userData = {
-    email: `signup_${provider.toLowerCase().replace(/\s+/g, '_')}@pulmuonemeal.co.kr`,
-    name: `${provider} 신규회원`,
-    schoolName: '학교급식 파트너',
+    email,
+    name,
+    schoolName,
     userType: '영양교사/조리사',
+    authProvider: provider,
     loginDate: new Date().toLocaleString()
   };
 
   localStorage.setItem(USER_SESSION_KEY, JSON.stringify(userData));
-  closeSignupModal();
+  closeSocialAuthModal();
   updateAuthHeaderUI();
 
-  alert(`🎉 ${provider} 간편 회원가입 완료!\n\n풀무원 바른급식 파트너 회원가입 및 자동 로그인이 정상적으로 처리되었습니다.`);
+  alert(`🎉 [${provider}] 인증 및 가입/로그인 완료!\n\n${schoolName} ${name}님, ${provider} 정보 인증이 정상적으로 완료되었습니다.`);
   if (typeof showToast === 'function') {
-    showToast(`${provider} 간편 가입 및 로그인이 완료되었습니다.`);
+    showToast(`'${name}'님 [${provider}] 간편 인증 및 로그인이 완료되었습니다.`);
   }
 }
 

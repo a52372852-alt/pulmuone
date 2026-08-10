@@ -313,6 +313,18 @@ function initAuthModals() {
   const container = document.createElement('div');
   container.innerHTML = modalsHtml;
   document.body.appendChild(container);
+
+  // 모달 오버레이 바깥쪽 클릭 시 닫기
+  ['userLoginModal', 'userSignupModal', 'socialAuthModal', 'userCsModal'].forEach(id => {
+    const modal = document.getElementById(id);
+    if (modal) {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          modal.classList.remove('open');
+        }
+      });
+    }
+  });
 }
 
 // -------------------------------------------------------------
@@ -422,6 +434,48 @@ function handleUserLogin(e) {
   
   if (typeof showToast === 'function') {
     showToast(`'${userData.name}'님 환영합니다! 바른급식 파트너 세션이 시작되었습니다.`);
+  }
+}
+
+function openSignupModal(e) {
+  if (e) e.preventDefault();
+  const modal = document.getElementById('userSignupModal');
+  if (modal) modal.classList.add('open');
+}
+
+function closeSignupModal() {
+  const modal = document.getElementById('userSignupModal');
+  if (modal) modal.classList.remove('open');
+}
+
+function handleUserSignup(e) {
+  if (e) e.preventDefault();
+  
+  const userTypeEl = document.getElementById('signupUserType');
+  const schoolNameEl = document.getElementById('signupSchoolName');
+  const nameEl = document.getElementById('signupName');
+  const emailEl = document.getElementById('signupEmail');
+
+  const userType = userTypeEl ? userTypeEl.value : '영양교사/조리사';
+  const schoolName = (schoolNameEl && schoolNameEl.value.trim()) ? schoolNameEl.value.trim() : '서울초등학교';
+  const name = (nameEl && nameEl.value.trim()) ? nameEl.value.trim() : '홍길동 교사';
+  const email = (emailEl && emailEl.value.trim()) ? emailEl.value.trim() : 'hong@seoul.es.kr';
+
+  const userData = {
+    email: email,
+    name: name,
+    schoolName: schoolName,
+    userType: userType,
+    loginDate: new Date().toLocaleString()
+  };
+
+  localStorage.setItem(USER_SESSION_KEY, JSON.stringify(userData));
+  closeSignupModal();
+  updateAuthHeaderUI();
+
+  alert(`🎉 회원가입 완료!\n\n${schoolName} ${name}님, 풀무원 바른급식 파트너 회원가입 및 자동 로그인이 정상 완료되었습니다.`);
+  if (typeof showToast === 'function') {
+    showToast(`'${name}'님 회원가입 및 로그인이 완료되었습니다.`);
   }
 }
 

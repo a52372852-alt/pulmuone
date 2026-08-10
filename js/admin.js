@@ -57,6 +57,9 @@ const DEMO_PARTNER_USERS = [
     status: '승인 완료'
   }
 ];
+
+// 초기 샘플 견적 접수 데이터 주입
+const DEMO_QUOTE_REQUESTS = [
   {
     receiptNo: 'PM-84920192',
     requestDate: '2026-08-10 14:20',

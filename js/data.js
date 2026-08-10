@@ -32,8 +32,9 @@ const DEFAULT_PRODUCTS = [
     category: 'earth-diet',
     spec: '1.2kg (봉)',
     price: 18900,
+    originalPrice: 22000,
     allergens: ['대두', '밀'],
-    badges: ['earth', 'popular'],
+    badges: ['earth', 'popular', 'sale'],
     image: 'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?auto=format&fit=crop&q=80&w=400',
     nutrition: {
       servingSize: '100g당',
@@ -51,8 +52,9 @@ const DEFAULT_PRODUCTS = [
     category: 'processed',
     spec: '1.5kg (봉)',
     price: 14200,
+    originalPrice: 17500,
     allergens: ['돼지고기', '밀', '대두'],
-    badges: ['popular'],
+    badges: ['popular', 'sale'],
     image: 'https://images.unsplash.com/photo-1541832676-9b763b0239ab?auto=format&fit=crop&q=80&w=400',
     nutrition: {
       servingSize: '100g당',
@@ -71,7 +73,7 @@ const DEFAULT_PRODUCTS = [
     spec: '120ml (40개입/BOX)',
     price: 48000,
     allergens: [],
-    badges: ['popular'],
+    badges: ['popular', 'new'],
     image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&q=80&w=400',
     nutrition: {
       servingSize: '1병(120ml)당',
@@ -108,8 +110,9 @@ const DEFAULT_PRODUCTS = [
     category: 'processed',
     spec: '1.2kg (40g*30쪽)',
     price: 36000,
+    originalPrice: 42000,
     allergens: ['고등어'],
-    badges: [],
+    badges: ['sale'],
     image: 'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&q=80&w=400',
     nutrition: {
       servingSize: '1쪽(40g)당',
@@ -204,7 +207,7 @@ const DEFAULT_PRODUCTS = [
     spec: '60알 (판)',
     price: 19800,
     allergens: ['난류'],
-    badges: [],
+    badges: ['new'],
     image: 'https://images.unsplash.com/photo-1506976785307-8732e854ad03?auto=format&fit=crop&q=80&w=400',
     nutrition: {
       servingSize: '1알(45g)당',
@@ -222,8 +225,9 @@ const DEFAULT_PRODUCTS = [
     category: 'earth-diet',
     spec: '1.5kg (봉)',
     price: 24500,
+    originalPrice: 29000,
     allergens: ['대두', '밀'],
-    badges: ['earth'],
+    badges: ['earth', 'new', 'sale'],
     image: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&q=80&w=400',
     nutrition: {
       servingSize: '100g당',
@@ -272,12 +276,17 @@ function getProducts() {
   const localData = localStorage.getItem(DATA_STORAGE_KEY);
   if (localData) {
     try {
-      return JSON.parse(localData);
+      const parsed = JSON.parse(localData);
+      // 신규 스키마(sale 배지) 존재 여부 검사하여 구버전일 경우 갱신
+      const hasSaleBadge = parsed.some(p => p.badges && p.badges.includes('sale'));
+      if (hasSaleBadge) {
+        return parsed;
+      }
     } catch (e) {
       console.error('로컬스토리지 파싱 실패. 기본 데이터 복원.', e);
     }
   }
-  // 데이터가 없거나 에러 시 기본 리스트 저장 후 반환
+  // 데이터가 없거나, 구버전이거나, 에러 시 기본 리스트 저장 후 반환
   localStorage.setItem(DATA_STORAGE_KEY, JSON.stringify(DEFAULT_PRODUCTS));
   return DEFAULT_PRODUCTS;
 }

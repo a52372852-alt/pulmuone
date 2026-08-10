@@ -316,4 +316,35 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
+
+  // 1. 카테고리 드롭다운 토글 및 외부 클릭시 닫기 기능
+  const megaMenuToggleBtn = document.getElementById('megaMenuToggleBtn');
+  const megaDropdownPanel = document.getElementById('megaDropdownPanel');
+  
+  if (megaMenuToggleBtn && megaDropdownPanel) {
+    megaMenuToggleBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      megaDropdownPanel.classList.toggle('open');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!megaDropdownPanel.contains(e.target) && e.target !== megaMenuToggleBtn) {
+        megaDropdownPanel.classList.remove('open');
+      }
+    });
+  }
+
+  // 2. 미구현 카테고리 알림 토스트 전역 이벤트 핸들링
+  document.addEventListener('click', (e) => {
+    const unimplementedLink = e.target.closest('.btn-unimplemented-cat');
+    if (unimplementedLink) {
+      e.preventDefault();
+      showToast('해당 카테고리는 현재 학교 급식용 대용량 식자재가 준비 중입니다.');
+      
+      // 카테고리 드롭다운 패널이 열려 있다면 닫음
+      if (megaDropdownPanel) {
+        megaDropdownPanel.classList.remove('open');
+      }
+    }
+  });
 });

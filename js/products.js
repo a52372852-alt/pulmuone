@@ -99,18 +99,38 @@ function bindCatalogEvents() {
   }
 }
 
-// URL 쿼리 파라미터 파싱
+// URL 쿼리 파라미터 파싱 및 복합 연동
 function parseQueryParams() {
   const params = new URLSearchParams(window.location.search);
   
-  // 카테고리 필터 파라미터 처리
+  // 카테고리 및 배지 통합 필터 파라미터 처리
   const filterParam = params.get('filter');
   if (filterParam) {
-    activeCategory = filterParam;
-    const tab = document.querySelector(`.category-tab-btn[data-category="${filterParam}"]`);
-    if (tab) {
-      document.querySelectorAll('.category-tab-btn').forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
+    if (filterParam.startsWith('category_')) {
+      const catVal = filterParam.replace('category_', '');
+      activeCategory = catVal;
+      
+      const tab = document.querySelector(`.category-tab-btn[data-category="${catVal}"]`);
+      if (tab) {
+        document.querySelectorAll('.category-tab-btn').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+      }
+    } else if (['best', 'sale', 'new'].includes(filterParam)) {
+      activeCategory = filterParam;
+      
+      // 베스트/세일/신상의 경우 카테고리 탭은 '전체보기'를 활성화
+      const tab = document.querySelector(`.category-tab-btn[data-category="all"]`);
+      if (tab) {
+        document.querySelectorAll('.category-tab-btn').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+      }
+    } else {
+      activeCategory = filterParam;
+      const tab = document.querySelector(`.category-tab-btn[data-category="${filterParam}"]`);
+      if (tab) {
+        document.querySelectorAll('.category-tab-btn').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+      }
     }
   }
 
@@ -120,7 +140,7 @@ function parseQueryParams() {
     const productId = parseInt(idParam);
     setTimeout(() => {
       openProductModal(productId);
-    }, 300); // 렌더링 후 약간의 딜레이 뒤 모달 오픈
+    }, 300);
   }
 }
 
@@ -132,9 +152,17 @@ function filterAndRenderProducts() {
 
   // 1. 필터링 처리
   let filtered = PRODUCTS.filter(product => {
-    // 1-1. 카테고리 필터
-    if (activeCategory !== 'all' && product.category !== activeCategory) {
-      return false;
+    // 1-1. 카테고리 및 배지 통합 필터
+    if (activeCategory !== 'all') {
+      if (activeCategory === 'best') {
+        if (!product.badges.includes('popular')) return false;
+      } else if (activeCategory === 'sale') {
+        if (!product.badges.includes('sale')) return false;
+      } else if (activeCategory === 'new') {
+        if (!product.badges.includes('new')) return false;
+      } else {
+        if (product.category !== activeCategory) return false;
+      }
     }
 
     // 1-2. 검색어 필터
@@ -192,6 +220,8 @@ function filterAndRenderProducts() {
       if (badge === 'earth') label = '지구식단';
       if (badge === 'organic') label = '친환경';
       if (badge === 'popular') label = '인기';
+      if (badge === 'sale') label = '세일';
+      if (badge === 'new') label = '신상품';
       badgesHtml += `<span class="badge ${badge}">${label}</span>`;
     });
 
@@ -201,6 +231,28 @@ function filterAndRenderProducts() {
       allergyHtml += product.allergens.map(a => `<span class="allergy-badge has-allergen">${a}</span>`).join('');
     } else {
       allergyHtml += '<span class="allergy-badge">알레르기 無</span>';
+    }
+
+    // 할인 가격 표시 처리
+    let priceHtml = '';
+    if (product.badges.includes('sale') && product.originalPrice) {
+      const discountRate = Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
+      priceHtml = `
+        <div class="price-box price-row-sale">
+          <span class="price-label">예상 납품단가</span>
+          <span class="original-price-val">${product.originalPrice.toLocaleString()}원</span>
+          <span class="price-val">
+            <span class="sale-discount-badge">${discountRate}%</span>${product.price.toLocaleString()}<span>원</span>
+          </span>
+        </div>
+      `;
+    } else {
+      priceHtml = `
+        <div class="price-box">
+          <span class="price-label">예상 납품단가</span>
+          <span class="price-val">${product.price.toLocaleString()}<span>원</span></span>
+        </div>
+      `;
     }
 
     html += `
@@ -217,10 +269,7 @@ function filterAndRenderProducts() {
             ${allergyHtml}
           </div>
           <div class="product-price-row">
-            <div class="price-box">
-              <span class="price-label">예상 납품단가</span>
-              <span class="price-val">${product.price.toLocaleString()}<span>원</span></span>
-            </div>
+            ${priceHtml}
             <button class="btn-add-quote" onclick="addToCart(${product.id})" title="견적 가방에 담기">
               <i class="fas fa-cart-plus"></i>
             </button>
@@ -274,11 +323,30 @@ function openProductModal(productId) {
         <h2 class="modal-name">${product.name}</h2>
         <span class="modal-spec-badge">규격: ${product.spec}</span>
         
-        <div class="price-box" style="margin-bottom: 24px;">
-          <span class="price-label">예상 대리점 납품가</span>
-          <span class="price-val" style="font-size: 26px; color: var(--primary-color);">
-            ${product.price.toLocaleString()}<span>원</span>
-          </span>
+        <div style="margin-bottom: 24px;">
+          ${(() => {
+            if (product.badges.includes('sale') && product.originalPrice) {
+              const discountRate = Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
+              return `
+                <div class="price-box price-row-sale">
+                  <span class="price-label">예상 대리점 납품가</span>
+                  <span class="original-price-val" style="font-size: 13px;">${product.originalPrice.toLocaleString()}원</span>
+                  <span class="price-val" style="font-size: 26px; color: var(--primary-color);">
+                    <span class="sale-discount-badge" style="font-size: 26px;">${discountRate}%</span>${product.price.toLocaleString()}<span>원</span>
+                  </span>
+                </div>
+              `;
+            } else {
+              return `
+                <div class="price-box">
+                  <span class="price-label">예상 대리점 납품가</span>
+                  <span class="price-val" style="font-size: 26px; color: var(--primary-color);">
+                    ${product.price.toLocaleString()}<span>원</span>
+                  </span>
+                </div>
+              `;
+            }
+          })()}
         </div>
 
         <div style="display: flex; gap: 16px; margin-bottom: 24px;">

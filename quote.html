@@ -237,6 +237,24 @@
 
   <!-- 헤더 -->
   <header>
+    <!-- 상단 유틸 바 -->
+    <div class="top-header">
+      <div class="container top-header-inner">
+        <div class="top-brands">
+          <span class="active">풀무원</span> | 
+          <span>올가</span> | 
+          <span>풀무원건강생활</span>
+        </div>
+        <div class="top-nav">
+          <a href="#">로그인</a>
+          <a href="#">회원가입</a>
+          <a href="#">고객센터</a>
+          <a href="admin.html" title="관리자 콘솔"><i class="fas fa-cog"></i> 관리자</a>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 메인 GNB 바 -->
     <div class="container header-inner">
       <div class="logo">
         <a href="index.html">
@@ -245,16 +263,43 @@
           <span class="sub-brand">학교급식 파트너</span>
         </a>
       </div>
+      
+      <!-- 카테고리 메뉴 토글러 및 메가 드롭다운 -->
+      <div class="category-menu-wrapper">
+        <button class="btn-category-toggle" id="megaMenuToggleBtn">
+          <i class="fas fa-bars"></i> 카테고리
+        </button>
+        <div class="mega-dropdown-panel" id="megaDropdownPanel">
+          <ul>
+            <li><a href="products.html?filter=category_earth-diet"><i class="fas fa-earth-asia"></i> 지속가능먹거리</a></li>
+            <li><a href="products.html?filter=category_tofu-vegetables"><i class="fas fa-egg"></i> 두부·콩나물·달걀</a></li>
+            <li><a href="products.html?filter=category_processed"><i class="fas fa-fish"></i> 정육·수산·가공식품</a></li>
+            <li><a href="products.html?filter=category_snacks"><i class="fas fa-cookie"></i> 과자·간식·음료</a></li>
+            <!-- 미구현 카테고리 (안내 팝업용 클래스 연결) -->
+            <li><a href="#" class="btn-unimplemented-cat"><i class="fas fa-wheat-awn"></i> 과일·채소·쌀</a></li>
+            <li><a href="#" class="btn-unimplemented-cat"><i class="fas fa-pizza-slice"></i> 만두·피자·떡볶이</a></li>
+            <li><a href="#" class="btn-unimplemented-cat"><i class="fas fa-bowl-rice"></i> 면요리</a></li>
+            <li><a href="#" class="btn-unimplemented-cat"><i class="fas fa-jar"></i> 반찬·김치</a></li>
+            <li><a href="#" class="btn-unimplemented-cat"><i class="fas fa-bottle-droplet"></i> 양념·소스·오일</a></li>
+            <li><a href="#" class="btn-unimplemented-cat"><i class="fas fa-capsules"></i> 건강식품</a></li>
+            <li><a href="#" class="btn-unimplemented-cat"><i class="fas fa-dog"></i> 반려동물</a></li>
+            <li><a href="#" class="btn-unimplemented-cat"><i class="fas fa-soap"></i> 생활·주방·뷰티</a></li>
+            <li><a href="#" class="btn-unimplemented-cat"><i class="fas fa-tv"></i> 가전제품</a></li>
+            <li><a href="#" class="btn-unimplemented-cat"><i class="fas fa-gift"></i> 선물세트</a></li>
+          </ul>
+        </div>
+      </div>
+
       <nav class="nav-menu">
-        <a href="index.html" class="nav-item">홈</a>
+        <a href="products.html?filter=best" class="nav-item">베스트</a>
+        <a href="products.html?filter=sale" class="nav-item">지금세일</a>
+        <a href="products.html?filter=new" class="nav-item">신상품</a>
         <a href="products.html" class="nav-item">급식 카탈로그</a>
         <a href="quote.html" class="nav-item active">온라인 견적신청</a>
         <a href="about.html" class="nav-item">회사 소개</a>
       </nav>
+      
       <div class="header-actions">
-        <a href="admin.html" class="btn-cart-toggle" title="관리자 모드" style="background-color: #f1f5f9; color: #64748b;">
-          <i class="fas fa-cog"></i>
-        </a>
         <button class="btn-cart-toggle" title="견적 가방 열기">
           <i class="fas fa-file-invoice"></i>
           <span class="cart-count">0</span>

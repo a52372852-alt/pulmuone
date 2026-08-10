@@ -961,4 +961,105 @@
   color: var(--accent-color);
 }
 
+/* ==========================================================================
+   지속가능먹거리 전용 사이드바 상세 필터 스타일
+   ========================================================================== */
+
+.sidebar-filter-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--primary-color);
+}
+
+.sidebar-category-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.sidebar-category-link {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-light);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sidebar-category-link:hover {
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.sidebar-category-link.active {
+  color: var(--primary-color);
+  font-weight: 700;
+}
+
+/* 아코디언 아웃라인 */
+.filter-accordion-group {
+  border-top: 1px solid var(--border-color);
+  padding: 16px 0;
+}
+
+.filter-accordion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-dark);
+  user-select: none;
+}
+
+.filter-accordion-header i {
+  font-size: 11px;
+  color: var(--text-light);
+  transition: transform var(--transition-normal);
+}
+
+.filter-accordion-header.active i {
+  transform: rotate(180deg);
+}
+
+.filter-accordion-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+  padding-left: 2px;
+  transition: max-height var(--transition-normal) ease;
+}
+
+.filter-accordion-content.collapsed {
+  display: none;
+}
+
+.filter-checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-light);
+  cursor: pointer;
+  user-select: none;
+}
+
+.filter-checkbox-item input[type="checkbox"] {
+  accent-color: var(--primary-color);
+  cursor: pointer;
+}
+
+.filter-checkbox-item:hover {
+  color: var(--primary-color);
+}
+
+
 

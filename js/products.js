@@ -9,6 +9,11 @@ let currentSubpageMode = ''; // '' | 'best' | 'sale' | 'new'
 let activeDiscountFilter = 'all'; // 'all' | '40-up' | '40-20' | '20-10' | '10-under'
 let activeSubCategory = 'all'; // QUICK_CATEGORIES id 매핑
 
+// 지속가능먹거리 전용 사이드바 상태 변수
+let activeEarthSubCategory = 'all'; // 'all' | 'plant' | 'animal' | 'health' | 'eco'
+let selectedBenefits = []; // 'shipping', 'group' 등
+let selectedBrands = []; // 브랜드명 목록
+
 const QUICK_CATEGORIES = [
   { id: 'all', name: '전체', icon: 'fa-bars', categoryKey: 'all' },
   { id: 'earth-diet', name: '지속가능먹거리', icon: 'fa-earth-asia', categoryKey: 'earth-diet' },
@@ -64,6 +69,13 @@ function bindCatalogEvents() {
       tabs.forEach(t => t.classList.remove('active'));
       e.target.classList.add('active');
       activeCategory = e.target.getAttribute('data-category');
+      
+      // 상세 사이드바 필터 초기화
+      activeEarthSubCategory = 'all';
+      selectedBenefits = [];
+      selectedBrands = [];
+      
+      renderSidebarFilters();
       filterAndRenderProducts();
     });
   });
@@ -77,6 +89,10 @@ function bindCatalogEvents() {
       // 검색어가 존재하면 카테고리 필터를 '전체보기'로 자동 전환
       if (searchQuery.length > 0) {
         activeCategory = 'all';
+        activeEarthSubCategory = 'all';
+        selectedBenefits = [];
+        selectedBrands = [];
+        
         const categoryTabs = document.querySelectorAll('.category-tab-btn');
         categoryTabs.forEach(t => {
           if (t.getAttribute('data-category') === 'all') {
@@ -85,6 +101,8 @@ function bindCatalogEvents() {
             t.classList.remove('active');
           }
         });
+        
+        renderSidebarFilters();
       }
       
       filterAndRenderProducts();
@@ -206,6 +224,9 @@ function parseQueryParams() {
     }
   }
 
+  // 사이드바 동적 필터 로드
+  renderSidebarFilters();
+
   // 특정 상품 상세 파라미터 처리
   const idParam = params.get('id');
   if (idParam) {
@@ -214,6 +235,141 @@ function parseQueryParams() {
       openProductModal(productId);
     }, 300);
   }
+}
+
+// 지속가능먹거리 전용 사이드바 상세 필터 렌더링 함수
+function renderSidebarFilters() {
+  const container = document.getElementById('dynamicSidebarFilters');
+  if (!container) return;
+
+  // 일반 카탈로그에서 'earth-diet' (지속가능먹거리) 카테고리일 때만 활성화
+  if (activeCategory !== 'earth-diet') {
+    container.innerHTML = '';
+    container.style.display = 'none';
+    return;
+  }
+
+  container.style.display = 'block';
+
+  let html = `
+    <!-- 1. 세부 카테고리 타이틀 및 리스트 -->
+    <h4 class="sidebar-filter-title">카테고리</h4>
+    <div class="sidebar-category-list">
+      <a class="sidebar-category-link ${activeEarthSubCategory === 'all' ? 'active' : ''}" data-earth-sub="all">전체보기</a>
+      <a class="sidebar-category-link ${activeEarthSubCategory === 'plant' ? 'active' : ''}" data-earth-sub="plant">식물성지향</a>
+      <a class="sidebar-category-link ${activeEarthSubCategory === 'animal' ? 'active' : ''}" data-earth-sub="animal">동물복지</a>
+      <a class="sidebar-category-link ${activeEarthSubCategory === 'health' ? 'active' : ''}" data-earth-sub="health">건강한경험</a>
+      <a class="sidebar-category-link ${activeEarthSubCategory === 'eco' ? 'active' : ''}" data-earth-sub="eco">친환경케어</a>
+    </div>
+
+    <!-- 2. 혜택 필터 아코디언 -->
+    <div class="filter-accordion-group">
+      <div class="filter-accordion-header active" data-accordion="benefit">
+        <span>혜택</span>
+        <i class="fas fa-chevron-up"></i>
+      </div>
+      <div class="filter-accordion-content" id="accordionBenefit">
+        <label class="filter-checkbox-item">
+          <input type="checkbox" value="group" ${selectedBenefits.includes('group') ? 'checked' : ''}>
+          <span>골라담아 할인</span>
+        </label>
+        <label class="filter-checkbox-item">
+          <input type="checkbox" value="shipping" ${selectedBenefits.includes('shipping') ? 'checked' : ''}>
+          <span>무료배송</span>
+        </label>
+        <label class="filter-checkbox-item">
+          <input type="checkbox" value="discount" ${selectedBenefits.includes('discount') ? 'checked' : ''}>
+          <span>할인</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- 3. 브랜드 필터 아코디언 -->
+    <div class="filter-accordion-group" style="margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 20px;">
+      <div class="filter-accordion-header active" data-accordion="brand">
+        <span>브랜드</span>
+        <i class="fas fa-chevron-up"></i>
+      </div>
+      <div class="filter-accordion-content" id="accordionBrand">
+        <label class="filter-checkbox-item">
+          <input type="checkbox" value="올가" ${selectedBrands.includes('올가') ? 'checked' : ''}>
+          <span>올가</span>
+        </label>
+        <label class="filter-checkbox-item">
+          <input type="checkbox" value="풀무원식품" ${selectedBrands.includes('풀무원식품') ? 'checked' : ''}>
+          <span>풀무원식품</span>
+        </label>
+        <label class="filter-checkbox-item">
+          <input type="checkbox" value="풀스키즈" ${selectedBrands.includes('풀스키즈') ? 'checked' : ''}>
+          <span>풀스키즈</span>
+        </label>
+        <label class="filter-checkbox-item">
+          <input type="checkbox" value="디자인밀" ${selectedBrands.includes('디자인밀') ? 'checked' : ''}>
+          <span>디자인밀</span>
+        </label>
+        <label class="filter-checkbox-item">
+          <input type="checkbox" value="풀무원 자연은 맛있다" ${selectedBrands.includes('풀무원 자연은 맛있다') ? 'checked' : ''}>
+          <span>풀무원 자연 건면</span>
+        </label>
+      </div>
+    </div>
+  `;
+
+  container.innerHTML = html;
+
+  // 이벤트 바인딩
+  // 1) 세부 카테고리 클릭
+  const catLinks = container.querySelectorAll('.sidebar-category-link');
+  catLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      activeEarthSubCategory = e.target.getAttribute('data-earth-sub');
+      renderSidebarFilters();
+      filterAndRenderProducts();
+    });
+  });
+
+  // 2) 혜택 체크박스 변경
+  const benefitChecks = container.querySelectorAll('#accordionBenefit input');
+  benefitChecks.forEach(check => {
+    check.addEventListener('change', () => {
+      const checked = container.querySelectorAll('#accordionBenefit input:checked');
+      selectedBenefits = Array.from(checked).map(c => c.value);
+      filterAndRenderProducts();
+    });
+  });
+
+  // 3) 브랜드 체크박스 변경
+  const brandChecks = container.querySelectorAll('#accordionBrand input');
+  brandChecks.forEach(check => {
+    check.addEventListener('change', () => {
+      const checked = container.querySelectorAll('#accordionBrand input:checked');
+      selectedBrands = Array.from(checked).map(c => c.value);
+      filterAndRenderProducts();
+    });
+  });
+
+  // 4) 아코디언 토글
+  const accordionHeaders = container.querySelectorAll('.filter-accordion-header');
+  accordionHeaders.forEach(header => {
+    header.addEventListener('click', (e) => {
+      const headerElem = e.currentTarget;
+      const targetId = headerElem.getAttribute('data-accordion');
+      const targetContent = container.querySelector(targetId === 'benefit' ? '#accordionBenefit' : '#accordionBrand');
+      const icon = headerElem.querySelector('i');
+
+      headerElem.classList.toggle('active');
+      if (targetContent) {
+        targetContent.classList.toggle('collapsed');
+      }
+
+      if (headerElem.classList.contains('active')) {
+        icon.className = 'fas fa-chevron-up';
+      } else {
+        icon.className = 'fas fa-chevron-down';
+      }
+    });
+  });
 }
 
 // 서브페이지 전용 헤더 및 카테고리 퀵 선택 패널 드로잉
@@ -345,6 +501,30 @@ function filterAndRenderProducts() {
       // 일반 카탈로그 필터링
       if (activeCategory !== 'all') {
         if (product.category !== activeCategory) return false;
+      }
+
+      // 지속가능먹거리 카테고리일 때 사이드바 상세 필터 다중 연산
+      if (activeCategory === 'earth-diet') {
+        // (1) 세부 카테고리
+        if (activeEarthSubCategory !== 'all') {
+          if (product.earthSubCategory !== activeEarthSubCategory) return false;
+        }
+        
+        // (2) 혜택 다중 체크 필터
+        if (selectedBenefits.length > 0) {
+          const passBenefit = selectedBenefits.every(benefit => {
+            if (benefit === 'shipping') return product.freeShipping === true;
+            if (benefit === 'group') return product.groupDiscount === true;
+            if (benefit === 'discount') return product.badges && product.badges.includes('sale');
+            return true;
+          });
+          if (!passBenefit) return false;
+        }
+
+        // (3) 브랜드 다중 체크 필터
+        if (selectedBrands.length > 0) {
+          if (!selectedBrands.includes(product.brand)) return false;
+        }
       }
     }
 

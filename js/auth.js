@@ -73,6 +73,10 @@ function initAuthModals() {
             <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">학교 및 기관 급식 전용 혜택과 단가 견적을 받아보세요.</p>
           </div>
 
+          <button class="demo-fill-btn" onclick="fillDemoSignupUser()" type="button">
+            <i class="fas fa-bolt"></i> <strong>서울초 홍길동 영양교사</strong> 가입정보 자동 채우기
+          </button>
+
           <form id="userSignupForm" onsubmit="handleUserSignup(event)">
             <div class="form-control-group">
               <label class="form-label">회원 구분 <span class="required">*</span></label>
@@ -113,11 +117,11 @@ function initAuthModals() {
 
             <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">
               <label style="display:flex; align-items:center; gap:6px; cursor:pointer;">
-                <input type="checkbox" required checked> [필수] 이용약관 및 개인정보 처리방침 동의
+                <input type="checkbox" id="signupAgreeCheck" required checked> [필수] 이용약관 및 개인정보 처리방침 동의
               </label>
             </div>
 
-            <button type="submit" class="btn-submit-quote-page" style="padding: 12px; font-size: 15px;">회원가입 완료</button>
+            <button type="submit" class="btn-submit-quote-page" style="padding: 12px; font-size: 15px; width: 100%; cursor: pointer;">회원가입 완료</button>
           </form>
 
           <div style="position:relative; text-align:center; margin: 20px 0 16px 0;">
@@ -386,6 +390,17 @@ function fillDemoUser() {
   document.getElementById('loginPassword').value = '123456';
   if (typeof showToast === 'function') {
     showToast('안심초 김영양 영양교사 데모 계정이 입력되었습니다.');
+  }
+}
+
+function fillDemoSignupUser() {
+  if (document.getElementById('signupSchoolName')) document.getElementById('signupSchoolName').value = '서울초등학교';
+  if (document.getElementById('signupName')) document.getElementById('signupName').value = '홍길동';
+  if (document.getElementById('signupEmail')) document.getElementById('signupEmail').value = 'hong@seoul.es.kr';
+  if (document.getElementById('signupTel')) document.getElementById('signupTel').value = '010-9876-5432';
+  if (document.getElementById('signupPassword')) document.getElementById('signupPassword').value = '123456';
+  if (typeof showToast === 'function') {
+    showToast('서울초 홍길동 영양교사 가입 정보가 채워졌습니다.');
   }
 }
 

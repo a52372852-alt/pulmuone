@@ -19,11 +19,13 @@ function checkAdminAuth() {
     loginSection.style.display = 'none';
     dashboardSection.style.display = 'block';
     renderAdminProducts();
+    bindAdminEvents();
   } else {
     loginSection.style.display = 'block';
     dashboardSection.style.display = 'none';
   }
 }
+
 
 // 로그인 액션
 function handleAdminLogin(event) {

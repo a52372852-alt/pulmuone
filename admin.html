@@ -451,12 +451,13 @@
           <h2><i class="fas fa-cubes" style="color: var(--primary-color);"></i> 식자재 카탈로그 관리 콘솔</h2>
         </div>
         <div class="admin-toolbar">
-          <button class="btn-admin-action primary" id="btnOpenAddModal">
+          <button class="btn-admin-action primary" id="btnOpenAddModal" onclick="openProductFormModal()">
             <i class="fas fa-plus"></i> 새 식자재 등록
           </button>
-          <button class="btn-admin-action secondary" id="btnAdminLogout">
+          <button class="btn-admin-action secondary" id="btnAdminLogout" onclick="handleAdminLogout()">
             <i class="fas fa-sign-out-alt"></i> 로그아웃
           </button>
+
         </div>
       </div>
 
@@ -686,9 +687,10 @@
   </footer>
 
   <!-- Scripts -->
-  <script src="js/data.js?v=2"></script>
-  <script src="js/cart.js?v=2"></script>
-  <script src="js/admin.js?v=2"></script>
+  <script src="js/data.js?v=3"></script>
+  <script src="js/cart.js?v=3"></script>
+  <script src="js/admin.js?v=3"></script>
 </body>
+
 </html>
 

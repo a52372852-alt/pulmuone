@@ -297,6 +297,98 @@
       font-size: 24px;
       color: var(--text-light);
     }
+
+    /* 어드민 상단 탭 네비게이션 */
+    .admin-tab-nav {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      border-bottom: 2px solid var(--border-color);
+      padding-bottom: 2px;
+    }
+
+    .admin-tab-btn {
+      padding: 12px 24px;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-muted);
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all var(--transition-fast);
+    }
+
+    .admin-tab-btn:hover {
+      color: var(--primary-color);
+    }
+
+    .admin-tab-btn.active {
+      color: var(--primary-color);
+      border-bottom-color: var(--primary-color);
+    }
+
+    .admin-tab-btn .badge-count {
+      background-color: var(--primary-light);
+      color: var(--primary-color);
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    /* 견적 접수 현황 통계 카드 */
+    .quote-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .quote-stat-card {
+      background-color: var(--bg-main);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .quote-stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .quote-stat-info div {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .quote-stat-info strong {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--secondary-color);
+      font-family: 'Outfit', sans-serif;
+    }
+
+    /* 상태 뱃지 */
+    .status-select {
+      padding: 6px 10px;
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid var(--border-color);
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -446,57 +538,171 @@
 
     <!-- 2. 어드민 대시보드 섹션 (로그인 후 노출) -->
     <section class="admin-dashboard animate-fade-in" id="dashboardSection" style="display: none;">
-      <div class="admin-header-row">
-        <div class="admin-title-box">
-          <h2><i class="fas fa-cubes" style="color: var(--primary-color);"></i> 식자재 카탈로그 관리 콘솔</h2>
-        </div>
-        <div class="admin-toolbar">
-          <button class="btn-admin-action primary" id="btnOpenAddModal" onclick="openProductFormModal()">
-            <i class="fas fa-plus"></i> 새 식자재 등록
-          </button>
-          <button class="btn-admin-action secondary" id="btnAdminLogout" onclick="handleAdminLogout()">
-            <i class="fas fa-sign-out-alt"></i> 로그아웃
-          </button>
+      
+      <!-- 상단 탭 메뉴 -->
+      <div class="admin-tab-nav">
+        <button class="admin-tab-btn active" id="tabBtnProducts" onclick="switchAdminTab('products')">
+          <i class="fas fa-cubes"></i> 식자재 카탈로그 관리
+        </button>
+        <button class="admin-tab-btn" id="tabBtnQuotes" onclick="switchAdminTab('quotes')">
+          <i class="fas fa-file-invoice-dollar"></i> 📥 견적/주문 접수 내역
+          <span class="badge-count" id="quoteBadgeCount">0</span>
+        </button>
+      </div>
 
+      <!-- [탭 1] 식자재 카탈로그 관리 패널 -->
+      <div id="tabContentProducts">
+        <div class="admin-header-row">
+          <div class="admin-title-box">
+            <h2><i class="fas fa-cubes" style="color: var(--primary-color);"></i> 식자재 카탈로그 관리 콘솔</h2>
+          </div>
+          <div class="admin-toolbar">
+            <button class="btn-admin-action primary" id="btnOpenAddModal" onclick="openProductFormModal()">
+              <i class="fas fa-plus"></i> 새 식자재 등록
+            </button>
+            <button class="btn-admin-action secondary" id="btnAdminLogout" onclick="handleAdminLogout()">
+              <i class="fas fa-sign-out-alt"></i> 로그아웃
+            </button>
+          </div>
+        </div>
+
+        <!-- 데이터 백업/가져오기 도구 (비개발자용) -->
+        <div class="backup-panel">
+          <div class="backup-info">
+            <i class="fas fa-circle-info" style="color: var(--primary-color); margin-right: 6px;"></i>
+            <strong>데이터 동기화 도구</strong>: 등록/수정한 최신 식자재 목록을 JSON 파일로 백업받거나, 이전에 저장된 파일을 가져올 수 있습니다.
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn-admin-action secondary" onclick="exportProductsJSON()">
+              <i class="fas fa-download"></i> 데이터 내보내기 (JSON)
+            </button>
+            <button class="btn-admin-action secondary" onclick="document.getElementById('jsonImportInput').click()">
+              <i class="fas fa-upload"></i> 데이터 가져오기 (JSON)
+            </button>
+            <input type="file" id="jsonImportInput" accept=".json" style="display: none;" onchange="importProductsJSON(event)">
+          </div>
+        </div>
+
+        <!-- 상품 현황 표 -->
+        <div class="table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th style="width: 80px;">이미지</th>
+                <th style="width: 150px;">브랜드</th>
+                <th>제품명</th>
+                <th style="width: 120px;">규격</th>
+                <th style="width: 150px;">카테고리</th>
+                <th style="width: 120px;">예상단가</th>
+                <th style="width: 120px;">관리</th>
+              </tr>
+            </thead>
+            <tbody id="adminProductTableBody">
+              <!-- 동적 주입 -->
+            </tbody>
+          </table>
         </div>
       </div>
 
-      <!-- 데이터 백업/가져오기 도구 (비개발자용) -->
-      <div class="backup-panel">
-        <div class="backup-info">
-          <i class="fas fa-circle-info" style="color: var(--primary-color); margin-right: 6px;"></i>
-          <strong>데이터 동기화 도구</strong>: 등록/수정한 최신 식자재 목록을 JSON 파일로 백업받거나, 이전에 저장된 파일을 가져올 수 있습니다.
+      <!-- [탭 2] 견적/주문 접수 내역 관리 패널 -->
+      <div id="tabContentQuotes" style="display: none;">
+        <div class="admin-header-row">
+          <div class="admin-title-box">
+            <h2><i class="fas fa-file-invoice-dollar" style="color: var(--primary-color);"></i> B2B 견적/주문 접수 관리</h2>
+          </div>
+          <div class="admin-toolbar">
+            <button class="btn-admin-action primary" onclick="exportQuotesToExcel()">
+              <i class="fas fa-file-excel"></i> 📊 엑셀 다운로드 (CSV)
+            </button>
+            <button class="btn-admin-action secondary" onclick="handleAdminLogout()">
+              <i class="fas fa-sign-out-alt"></i> 로그아웃
+            </button>
+          </div>
         </div>
-        <div style="display: flex; gap: 8px;">
-          <button class="btn-admin-action secondary" onclick="exportProductsJSON()">
-            <i class="fas fa-download"></i> 데이터 내보내기 (JSON)
-          </button>
-          <button class="btn-admin-action secondary" onclick="document.getElementById('jsonImportInput').click()">
-            <i class="fas fa-upload"></i> 데이터 가져오기 (JSON)
-          </button>
-          <input type="file" id="jsonImportInput" accept=".json" style="display: none;" onchange="importProductsJSON(event)">
+
+        <!-- 견적 현황 통계 카드 요약 -->
+        <div class="quote-stats-grid">
+          <div class="quote-stat-card">
+            <div class="quote-stat-icon" style="background:#eff6ff; color:#3b82f6;">
+              <i class="fas fa-inbox"></i>
+            </div>
+            <div class="quote-stat-info">
+              <div>전체 접수건</div>
+              <strong id="statTotalQuotes">0건</strong>
+            </div>
+          </div>
+          <div class="quote-stat-card">
+            <div class="quote-stat-icon" style="background:#fef3c7; color:#d97706;">
+              <i class="fas fa-clock"></i>
+            </div>
+            <div class="quote-stat-info">
+              <div>매칭/검토 중</div>
+              <strong id="statPendingQuotes">0건</strong>
+            </div>
+          </div>
+          <div class="quote-stat-card">
+            <div class="quote-stat-icon" style="background:#d1fae5; color:#059669;">
+              <i class="fas fa-circle-check"></i>
+            </div>
+            <div class="quote-stat-info">
+              <div>승인/완료 건</div>
+              <strong id="statCompletedQuotes">0건</strong>
+            </div>
+          </div>
+          <div class="quote-stat-card">
+            <div class="quote-stat-icon" style="background:#f3e8ff; color:#9333ea;">
+              <i class="fas fa-won-sign"></i>
+            </div>
+            <div class="quote-stat-info">
+              <div>총 견적 금액</div>
+              <strong id="statTotalAmount" style="font-size: 18px;">0원</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- 필터 및 검색 컨트롤 -->
+        <div class="backup-panel" style="margin-bottom: 20px;">
+          <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap; width: 100%;">
+            <span style="font-size: 14px; font-weight: 700; color: var(--secondary-color);">
+              <i class="fas fa-filter" style="color: var(--primary-color);"></i> 상태 필터:
+            </span>
+            <select class="select-field" id="quoteStatusFilter" onchange="renderAdminQuotes()" style="max-width: 180px; padding: 6px 12px;">
+              <option value="all">전체 보기</option>
+              <option value="매칭 중">매칭 중</option>
+              <option value="견적 검토 중">견적 검토 중</option>
+              <option value="납품 승인 완료">납품 승인 완료</option>
+              <option value="상세 상담 완료">상세 상담 완료</option>
+            </select>
+
+            <span style="font-size: 13px; color: var(--text-muted); margin-left: auto;">
+              * 엑셀 버튼을 클릭하면 한글 깨짐 없이 전체 접수 목록을 Excel로 다운로드할 수 있습니다.
+            </span>
+          </div>
+        </div>
+
+        <!-- 견적 접수 표 -->
+        <div class="table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th style="width: 110px;">접수번호</th>
+                <th style="width: 130px;">신청일시</th>
+                <th>기관/학교명</th>
+                <th style="width: 100px;">담당자</th>
+                <th style="width: 110px;">급식인원</th>
+                <th>주문품목</th>
+                <th style="width: 110px;">예상총액</th>
+                <th style="width: 140px;">진행상태</th>
+                <th style="width: 110px;">상세/삭제</th>
+              </tr>
+            </thead>
+            <tbody id="adminQuoteTableBody">
+              <!-- 동적 주입 -->
+            </tbody>
+          </table>
         </div>
       </div>
 
-      <!-- 상품 현황 표 -->
-      <div class="table-container">
-        <table class="admin-table">
-          <thead>
-            <tr>
-              <th style="width: 80px;">이미지</th>
-              <th style="width: 150px;">브랜드</th>
-              <th>제품명</th>
-              <th style="width: 120px;">규격</th>
-              <th style="width: 150px;">카테고리</th>
-              <th style="width: 120px;">예상단가</th>
-              <th style="width: 120px;">관리</th>
-            </tr>
-          </thead>
-          <tbody id="adminProductTableBody">
-            <!-- 동적 주입 -->
-          </tbody>
-        </table>
-      </div>
     </section>
 
   </main>
@@ -629,6 +835,18 @@
     </div>
   </div>
 
+  <!-- 4. 견적 접수 상세 보기 모달 다이얼로그 -->
+  <div class="modal-overlay" id="quoteDetailModal">
+    <div class="modal-window animate-fade-in" style="max-width: 760px;">
+      <button class="modal-close" onclick="closeQuoteDetailModal()">
+        <i class="fas fa-times"></i>
+      </button>
+      <div class="modal-body" id="quoteDetailModalContent">
+        <!-- 동적 주입 -->
+      </div>
+    </div>
+  </div>
+
   <!-- 푸터 -->
   <footer>
     <div class="container">
@@ -687,9 +905,9 @@
   </footer>
 
   <!-- Scripts -->
-  <script src="js/data.js?v=3"></script>
-  <script src="js/cart.js?v=3"></script>
-  <script src="js/admin.js?v=3"></script>
+  <script src="js/data.js?v=4"></script>
+  <script src="js/cart.js?v=4"></script>
+  <script src="js/admin.js?v=4"></script>
 </body>
 
 </html>

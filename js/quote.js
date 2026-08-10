@@ -127,6 +127,39 @@ function handleQuoteSubmit(event) {
   const now = new Date();
   const requestDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 
+  // 견적서 데이터 객체 생성 및 LocalStorage 저장
+  const cartSummary = getCartSummary();
+  const quoteData = {
+    receiptNo,
+    requestDate,
+    schoolName,
+    teacherName,
+    teacherTel,
+    teacherEmail,
+    mealCount,
+    deliveryStartDate,
+    deliveryCycle,
+    extraRequest,
+    totalCount: cartSummary.totalCount,
+    totalPrice: cartSummary.totalPrice,
+    status: '매칭 중',
+    items: cartState.map(item => ({
+      id: item.id,
+      name: item.name,
+      brand: item.brand,
+      spec: item.spec,
+      price: item.price,
+      quantity: item.quantity,
+      subtotal: item.price * item.quantity,
+      allergens: item.allergens || []
+    }))
+  };
+
+  const existingQuotesStr = localStorage.getItem('pulmuone_quote_requests');
+  let existingQuotes = existingQuotesStr ? JSON.parse(existingQuotesStr) : [];
+  existingQuotes.unshift(quoteData); // 최신 접수건이 맨 위로
+  localStorage.setItem('pulmuone_quote_requests', JSON.stringify(existingQuotes));
+
   // 견적서 정보 취합 로그 출력
   console.log('--- B2B 납품 견적서 신청 접수 완료 ---');
   console.log('접수번호:', receiptNo);

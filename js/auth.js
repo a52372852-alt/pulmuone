@@ -120,6 +120,25 @@ function initAuthModals() {
             <button type="submit" class="btn-submit-quote-page" style="padding: 12px; font-size: 15px;">회원가입 완료</button>
           </form>
 
+          <div style="position:relative; text-align:center; margin: 20px 0 16px 0;">
+            <hr style="border:none; border-top:1px solid var(--border-color);">
+            <span style="position:absolute; top:-10px; left:50%; transform:translateX(-50%); background:#fff; padding:0 10px; font-size:12px; color:var(--text-muted);">또는 간편 회원가입</span>
+          </div>
+
+          <div class="social-login-group">
+            <button class="btn-social-login sso" onclick="handleSocialSignup('전국 교육청 SSO')">
+              <i class="fas fa-university"></i> 전국 교육청 SSO 간편 회원가입
+            </button>
+            <div style="display:flex; gap:8px;">
+              <button class="btn-social-login kakao" onclick="handleSocialSignup('카카오')">
+                <i class="fas fa-comment"></i> 카카오 가입
+              </button>
+              <button class="btn-social-login naver" onclick="handleSocialSignup('네이버')">
+                <i class="fas fa-bold"></i> 네이버 가입
+              </button>
+            </div>
+          </div>
+
           <div style="text-align: center; margin-top: 16px; font-size: 13px; color: var(--text-muted);">
             이미 계정이 있으신가요? 
             <a href="#" onclick="switchModalToLogin(event)" style="color: var(--primary-color); font-weight: 700; text-decoration: underline;">로그인하기</a>
@@ -428,6 +447,25 @@ function handleUserSignup(e) {
   alert(`🎉 회원가입 완료!\n\n${schoolName} ${name}님, 풀무원 바른급식 파트너 회원가입이 완료되었습니다.`);
   if (typeof showToast === 'function') {
     showToast(`'${name}'님 회원가입 및 자동 로그인이 완료되었습니다.`);
+  }
+}
+
+function handleSocialSignup(provider) {
+  const userData = {
+    email: `signup_${provider.toLowerCase().replace(/\s+/g, '_')}@pulmuonemeal.co.kr`,
+    name: `${provider} 신규회원`,
+    schoolName: '학교급식 파트너',
+    userType: '영양교사/조리사',
+    loginDate: new Date().toLocaleString()
+  };
+
+  localStorage.setItem(USER_SESSION_KEY, JSON.stringify(userData));
+  closeSignupModal();
+  updateAuthHeaderUI();
+
+  alert(`🎉 ${provider} 간편 회원가입 완료!\n\n풀무원 바른급식 파트너 회원가입 및 자동 로그인이 정상적으로 처리되었습니다.`);
+  if (typeof showToast === 'function') {
+    showToast(`${provider} 간편 가입 및 로그인이 완료되었습니다.`);
   }
 }
 
